@@ -1,0 +1,178 @@
+package settings
+
+import (
+	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
+	"testing"
+
+	"kero/internal/actions"
+)
+
+func TestFormatKeepsTheUsersFile(t *testing.T) {
+	file := `# my kero
+font-size = 14
+
+# colors
+theme = light:Catppuccin Latte,dark:Catppuccin Mocha
+some-future-key = yes
+env = A=1
+env = B=2
+`
+	s, probs := parse(file)
+	if s.FontSize != 14 || s.LightTheme != "Catppuccin Latte" || s.DarkTheme != "Catppuccin Mocha" {
+		t.Fatalf("parsed %+v", s)
+	}
+	if !reflect.DeepEqual(s.Env, []string{"A=1", "B=2"}) {
+		t.Errorf("env %q", s.Env)
+	}
+	if len(probs) != 1 || !strings.Contains(probs[0], "some-future-key") {
+		t.Errorf("problems %q", probs)
+	}
+	s.FontSize = 15
+	s.Env = []string{"C=3"}
+	s.CursorBlink = false
+	out := format(s, file)
+	want := `# my kero
+font-size = 15
+
+# colors
+theme = light:Catppuccin Latte,dark:Catppuccin Mocha
+some-future-key = yes
+env = C=3
+cursor-style-blink = false
+`
+	if out != want {
+		t.Errorf("formatted:\n%s\nwant:\n%s", out, want)
+	}
+	back, _ := parse(out)
+	if !reflect.DeepEqual(back, s) {
+		t.Errorf("read back %+v, want %+v", back, s)
+	}
+}
+
+func TestFormatNewFileHasOnlyChanges(t *testing.T) {
+	s := Default()
+	settingLines := func(out string) int {
+		n := 0
+		for _, l := range strings.Split(out, "\n") {
+			if l != "" && !strings.HasPrefix(l, "#") {
+				n++
+			}
+		}
+		return n
+	}
+	if out := format(s, ""); settingLines(out) != 0 {
+		t.Errorf("defaults wrote settings:\n%s", out)
+	}
+	s.FontFamily, s.Appearance = "Iosevka Term", "dark"
+	out := format(s, "")
+	if !strings.Contains(out, "window-theme = dark\n") || !strings.Contains(out, "font-family = Iosevka Term\n") {
+		t.Errorf("formatted:\n%s", out)
+	}
+	if n := settingLines(out); n != 2 {
+		t.Errorf("%d settings written, want 2:\n%s", n, out)
+	}
+}
+
+func TestKeybinds(t *testing.T) {
+	s, probs := parse("keybind = cmd+shift+x=pane.split.right\nkeybind = cmd+d=unbind\nkeybind = cmd+==text.bigger\nkeybind = ctrl+q=nope\n")
+	if s.Shortcuts["pane.split.right"] != "CmdOrCtrl+Shift+X" {
+		t.Errorf("split right %q", s.Shortcuts["pane.split.right"])
+	}
+	if v, ok := s.Shortcuts["pane.split.right"]; !ok || v == "" {
+		t.Errorf("split right lost to the unbind: %q", v)
+	}
+	if s.Shortcuts["text.bigger"] != "CmdOrCtrl+=" {
+		t.Errorf("bigger %q", s.Shortcuts["text.bigger"])
+	}
+	if len(probs) != 1 || !strings.Contains(probs[0], "nope") {
+		t.Errorf("problems %q", probs)
+	}
+	// Unbinding keys frees the action that has them.
+	split, _ := actions.Find("pane.split.right")
+	keys := configKeys(split.Keys) // cmd+d on macOS
+	s2, _ := parse("keybind = " + keys + "=unbind\n")
+	if v, ok := s2.Shortcuts["pane.split.right"]; !ok || v != "" {
+		t.Errorf("%s unbound, split right %q %v", keys, v, ok)
+	}
+	if out := format(s2, ""); !strings.Contains(out, "keybind = "+keys+"=unbind\n") {
+		t.Errorf("formatted:\n%s", out)
+	}
+}
+
+func TestBadValuesKeepDefaults(t *testing.T) {
+	s, probs := parse("cursor-style = triangle\nfont-size = big\nconfirm-close = maybe\n")
+	d := Default()
+	if s.Cursor != d.Cursor || s.FontSize != d.FontSize || s.ConfirmClose != d.ConfirmClose {
+		t.Errorf("bad values changed settings: %+v", s)
+	}
+	if len(probs) != 3 {
+		t.Errorf("problems %q", probs)
+	}
+}
+
+// Kero elsewhere updates the app here only once the user lets it.
+func TestRemoteUpdatesOptIn(t *testing.T) {
+	if Default().RemoteUpdates {
+		t.Error("remote updates are on by default")
+	}
+	s, probs := parse("remote-updates = true\n")
+	if !s.RemoteUpdates || len(probs) != 0 {
+		t.Errorf("remote-updates = true: %v, problems %q", s.RemoteUpdates, probs)
+	}
+}
+
+func TestMigratesSettingsJSON(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("KERO_HOME", dir)
+	t.Setenv("KERO_CONFIG", filepath.Join(dir, "config", "kero", "config"))
+	os.WriteFile(filepath.Join(dir, "settings.json"), []byte(`{"fontSize": 16, "appearance": "dark", "background": "rex"}`), 0o600)
+	mu.Lock()
+	cache = nil
+	mu.Unlock()
+	s := Load()
+	if s.FontSize != 16 || s.Appearance != "dark" {
+		t.Fatalf("migrated %+v", s)
+	}
+	b, err := os.ReadFile(Path())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(b), "font-size = 16") || strings.Contains(string(b), "background") {
+		t.Errorf("config:\n%s", b)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "settings.json")); err == nil {
+		t.Error("settings.json stayed")
+	}
+}
+
+func TestAdLists(t *testing.T) {
+	tests := []struct {
+		file     string
+		want     []string
+		problems int
+	}{
+		{"", []string{"easylist", "easyprivacy"}, 0},
+		{"browser-filter-list = easylist\nbrowser-filter-list = peter-lowe\nbrowser-filter-list = easylist", []string{"easylist", "peter-lowe"}, 0},
+		{"browser-filter-list =", []string{}, 0},
+		{"browser-filter-list = easylist\nbrowser-filter-list =\nbrowser-filter-list = fanboy-cookie", []string{"fanboy-cookie"}, 0},
+		{"browser-filter-list = https://lists.example/ads.txt", []string{"https://lists.example/ads.txt"}, 0},
+		{"browser-filter-list = easylist\nbrowser-filter-list = no-such-list\nbrowser-filter-list = ftp://lists.example/x", []string{"easylist"}, 1},
+	}
+	for _, tt := range tests {
+		s, probs := parse(tt.file)
+		if !reflect.DeepEqual(s.AdLists, tt.want) || len(probs) != tt.problems {
+			t.Errorf("%q: lists %q, problems %q", tt.file, s.AdLists, probs)
+		}
+		// What is saved reads back the same: no lists as none, not the
+		// defaults.
+		if back, _ := parse(format(s, "")); !reflect.DeepEqual(back.AdLists, s.AdLists) {
+			t.Errorf("%q: saved and read back %q, want %q", tt.file, back.AdLists, s.AdLists)
+		}
+	}
+	if out := format(Default(), ""); strings.Contains(out, "browser-filter-list") {
+		t.Errorf("the default lists were written:\n%s", out)
+	}
+}
