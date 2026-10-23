@@ -489,9 +489,22 @@ func (d *Daemon) environment(sid, pid, shell string, extra []string) []string {
 		set("LANG=en_US.UTF-8")
 	}
 	// The CLI, after what the user's profile puts first.
-	path := os.Getenv("PATH")
-	if path == "" && runtime.GOOS != "windows" {
-		path = "/usr/bin:/bin:/usr/sbin:/sbin"
+	// Use the PATH from the already-filtered os.Environ() so that
+	// newly installed tools (e.g. Antigravity) are picked up without
+	// needing to restart the daemon.
+	path := ""
+	for _, kv := range env {
+		k, _, _ := strings.Cut(kv, "=")
+		if k == "PATH" || (runtime.GOOS == "windows" && strings.EqualFold(k, "PATH")) {
+			path = kv
+			break
+		}
+	}
+	if path == "" {
+		// Fall back to a minimal PATH if nothing found.
+		if runtime.GOOS != "windows" {
+			path = "/usr/bin:/bin:/usr/sbin:/sbin"
+		}
 	}
 	set("PATH=" + path + string(os.PathListSeparator) + filepath.Join(d.dir, "bin"))
 	for _, kv := range settings.Load().Env {
