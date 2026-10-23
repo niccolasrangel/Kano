@@ -143,7 +143,7 @@ func (a *App) sideEdge(c *ui.Context, pal *palette, row float32) {
 // tell that it touches the window's top and right edges, where its header
 // drags the window and holds the window's controls (windowControls).
 func (a *App) sidePanel(c *ui.Context, pal *palette, s *proto.Session, width float32, right bool) {
-	card := ui.Column(c.Key("side")).Width(width).Shrink(0).MinHeight(0).Radius(14).Clip().Background(pal.card).
+	card := ui.Column(c.Key("side")).Width(width).Shrink(0).MinHeight(0).Radius(cardRadius).Clip().Background(pal.card).
 		Focusable().Bind(a.paneRef("side-card"))
 	cardSurface(card, pal)
 	a.side.focused = card.FocusWithin()

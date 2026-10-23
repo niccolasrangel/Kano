@@ -1141,7 +1141,7 @@ button {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  border-radius: 0.75em;
+  border-radius: 0.625em;
   background: rgba(255, 255, 255, 0.86);
   box-shadow:
     0 0.05em 0.15em rgba(60, 30, 60, 0.06),

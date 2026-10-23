@@ -25,7 +25,11 @@ const (
 	// cardGap is the hair of the window's wash left around the card, on
 	// every side: enough that its edge reads as a card, no more.
 	cardGap = 3
-	rowH    = 34
+	// cardRadius rounds the cards' corners: a touch less than the window's
+	// own, so the content inside it doesn't read rounder than the frame
+	// around it.
+	cardRadius = 10
+	rowH       = 34
 	// rowInset is where a sidebar row's text starts: a session's name and
 	// its group's.
 	rowInset = 12
@@ -768,7 +772,7 @@ func (a *App) card(c *ui.Context, pal *palette, bar ui.TitleBar, shown float32) 
 		return
 	}
 	// No session: one card, for what the app has to say.
-	card := cardSurface(ui.Column(c).Grow(1).MinHeight(0).Radius(14).Background(pal.card), pal).Clip()
+	card := cardSurface(ui.Column(c).Grow(1).MinHeight(0).Radius(cardRadius).Background(pal.card), pal).Clip()
 	card.Children(func() {
 		left := a.chrome.headerPad
 		ui.Row(c).Height(headerH).Shrink(0).AlignItems(ui.Center).Padding(0, 10, 0, left).DragWindow().Children(func() {
