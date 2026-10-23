@@ -1,3 +1,3 @@
-# Kero
+# Kano
 
 - Cutting a release: follow [RELEASING.md](RELEASING.md).

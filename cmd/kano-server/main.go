@@ -1,12 +1,12 @@
-// Kero-server is the server build of Kero: kerod and the kero CLI,
-// without the app, for a machine whose sessions Kero on another one shows
+// Kano-server is the server build of Kano: kanod and the kano CLI,
+// without the app, for a machine whose sessions Kano on another one shows
 // (Settings › Hosts), as a Linux box with no display. It installs in
-// ~/.local with install-server.sh, which runs kerod as a service, and
-// updates itself (kero daemon update, or the app's Update Kero).
+// ~/.local with install-server.sh, which runs kanod as a service, and
+// updates itself (kano daemon update, or the app's Update Kano).
 //
 // Its version comes with the build:
 //
-//	go build -ldflags "-X main.version=2.1.0 -X github.com/egoist/mygo.production=1" -o kero ./cmd/kero-server
+//	go build -ldflags "-X main.version=2.1.0 -X github.com/egoist/mygo.production=1" -o kano ./cmd/kano-server
 package main
 
 import (
@@ -15,20 +15,20 @@ import (
 
 	"github.com/egoist/mygo"
 
-	"kero/internal/build"
-	"kero/internal/cli"
-	"kero/internal/daemon"
+	"kano/internal/build"
+	"kano/internal/cli"
+	"kano/internal/daemon"
 )
 
-// version is the version of Kero this build is of, set with -ldflags.
+// version is the version of Kano this build is of, set with -ldflags.
 var version = "dev"
 
 func main() {
 	build.Server = true
 	mygo.App.SetVersion(version)
-	if len(os.Args) > 1 && os.Args[1] == "__kerod" {
+	if len(os.Args) > 1 && os.Args[1] == "__kanod" {
 		if err := daemon.Run(daemon.Options{}); err != nil {
-			fmt.Fprintln(os.Stderr, "kerod:", err)
+			fmt.Fprintln(os.Stderr, "kanod:", err)
 			os.Exit(1)
 		}
 		return
@@ -37,7 +37,7 @@ func main() {
 		os.Exit(cli.Run([]string{"help"}))
 	}
 	if !cli.IsCommand(os.Args[1]) {
-		fmt.Fprintf(os.Stderr, "kero: unknown command %q (see kero help)\n", os.Args[1])
+		fmt.Fprintf(os.Stderr, "kano: unknown command %q (see kano help)\n", os.Args[1])
 		os.Exit(2)
 	}
 	os.Exit(cli.Run(os.Args[1:]))

@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"kero/internal/client"
-	"kero/internal/proto"
+	"kano/internal/client"
+	"kano/internal/proto"
 )
 
-// pipeDialer dials a kerod that welcomes an attach and hands what the
+// pipeDialer dials a kanod that welcomes an attach and hands what the
 // client then sends to frames.
 type pipeDialer struct{ frames chan byte }
 

@@ -1,15 +1,15 @@
 ---
 title: 键盘快捷键
-description: Kero 的默认键盘快捷键，以及用于重新绑定的操作 id。
+description: Kano 的默认键盘快捷键，以及用于重新绑定的操作 id。
 ---
 
 # 键盘快捷键
 
 以下任意快捷键都可以在 **设置 › 键盘** 中重新绑定，也可以在[配置文件](./configuration.md#keyboard)中用 `keybind` 修改。
 
-在 Windows 和 Linux 上，<kbd>Ctrl</kbd> 加字母的组合归 shell 使用（<kbd>Ctrl</kbd> <kbd>D</kbd>、<kbd>Ctrl</kbd> <kbd>R</kbd>、<kbd>Ctrl</kbd> <kbd>W</kbd>……），因此 Kero 的快捷键会像 Windows Terminal 一样额外加上 <kbd>Shift</kbd>，或改用 <kbd>Alt</kbd>。短横线表示该操作在对应平台上没有快捷键。
+在 Windows 和 Linux 上，<kbd>Ctrl</kbd> 加字母的组合归 shell 使用（<kbd>Ctrl</kbd> <kbd>D</kbd>、<kbd>Ctrl</kbd> <kbd>R</kbd>、<kbd>Ctrl</kbd> <kbd>W</kbd>……），因此 Kano 的快捷键会像 Windows Terminal 一样额外加上 <kbd>Shift</kbd>，或改用 <kbd>Alt</kbd>。短横线表示该操作在对应平台上没有快捷键。
 
-## Kero
+## Kano
 
 | 操作                         | macOS                                  | Windows 和 Linux                              | 操作 id          |
 | ---------------------------- | -------------------------------------- | --------------------------------------------- | ---------------- |

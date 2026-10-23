@@ -1,5 +1,5 @@
-// Package actions names what kero's app does, for its menus, its command
-// palette, the shortcuts the user rebinds in Settings, and `kero do`,
+// Package actions names what kano's app does, for its menus, its command
+// palette, the shortcuts the user rebinds in Settings, and `kano do`,
 // which runs them from a shell or an agent (Remote Control).
 package actions
 
@@ -14,16 +14,16 @@ type Action struct {
 	Title string
 	Menu  string // the menu it shows in
 	Keys  string // the default accelerator, as "CmdOrCtrl+Shift+D"; "" none
-	// Remote tells that `kero do` may run it: what needs no dialog or
+	// Remote tells that `kano do` may run it: what needs no dialog or
 	// focus of the user's.
 	Remote bool
 }
 
 // All are the app's actions, in their menus' order.
 var All = []Action{
-	{ID: "settings.open", Title: "Settings…", Menu: "Kero", Keys: "CmdOrCtrl+,", Remote: true},
-	{ID: "cli.install", Title: "Install Command Line Tool…", Menu: "Kero"},
-	{ID: "app.quitAll", Title: "Quit and End All Sessions…", Menu: "Kero", Keys: "CmdOrCtrl+Alt+Q"},
+	{ID: "settings.open", Title: "Settings…", Menu: "Kano", Keys: "CmdOrCtrl+,", Remote: true},
+	{ID: "cli.install", Title: "Install Command Line Tool…", Menu: "Kano"},
+	{ID: "app.quitAll", Title: "Quit and End All Sessions…", Menu: "Kano", Keys: "CmdOrCtrl+Alt+Q"},
 
 	{ID: "session.new", Title: "New Session", Menu: "Session", Keys: "CmdOrCtrl+T", Remote: true},
 	{ID: "session.newHome", Title: "New Session in Home", Menu: "Session", Keys: "CmdOrCtrl+Shift+T", Remote: true},

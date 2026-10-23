@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-// Listen is one of kerod's network listeners, as the configuration's
-// listen key and `kero daemon serve --listen` name it:
+// Listen is one of kanod's network listeners, as the configuration's
+// listen key and `kano daemon serve --listen` name it:
 //
 //   - tailnet://:7373, or tailnet:// for DefaultPort: plain HTTP on this
 //     machine's Tailscale addresses, which WireGuard encrypts; tailscaled
 //     tells who connects.
 //   - tailnet-serve:///path/to/serve.sock, or tailnet-serve:// for
-//     serve.sock in kero's directory: a socket for Tailscale Serve to pass
+//     serve.sock in kano's directory: a socket for Tailscale Serve to pass
 //     HTTPS connections to (`tailscale serve --bg unix:/path/to/serve.sock`),
 //     which tells who connects in its headers.
 type Listen struct {
@@ -48,7 +48,7 @@ func ParseListen(s string) (Listen, error) {
 		}
 		return Listen{Kind: "tailnet-serve", Path: u.Path}, nil
 	}
-	return Listen{}, fmt.Errorf("%q: kerod listens on tailnet://:port or tailnet-serve:///socket", s)
+	return Listen{}, fmt.Errorf("%q: kanod listens on tailnet://:port or tailnet-serve:///socket", s)
 }
 
 func (l Listen) String() string {

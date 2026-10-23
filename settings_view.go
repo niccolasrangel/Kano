@@ -18,15 +18,15 @@ import (
 	"github.com/egoist/mygo/plugins/updater"
 	"github.com/egoist/mygo/ui"
 
-	"kero/internal/actions"
-	"kero/internal/adblock"
-	"kero/internal/cli"
-	"kero/internal/client"
-	"kero/internal/proto"
-	"kero/internal/settings"
-	"kero/internal/shell"
+	"kano/internal/actions"
+	"kano/internal/adblock"
+	"kano/internal/cli"
+	"kano/internal/client"
+	"kano/internal/proto"
+	"kano/internal/settings"
+	"kano/internal/shell"
 
-	"kero/locales"
+	"kano/locales"
 )
 
 // settingsPage is a page of the Settings window.
@@ -66,7 +66,7 @@ type settingsState struct {
 	loginOpen    bool // open at login, as the system says
 	updates      updatePrefs
 	cliPath      string
-	service      string // kerod, as last asked
+	service      string // kanod, as last asked
 	notice       string // a line under the keyboard page, as of a conflict
 	toast        string
 	menus        map[string]*searchMenu     // the search menus', by key
@@ -119,7 +119,7 @@ func (a *App) openSettings(page string) {
 // updatePrefs are the updater's, as last read: the page reads these, not
 // the updater, which needs the running app.
 type updatePrefs struct {
-	enabled     bool // this copy of Kero can update itself
+	enabled     bool // this copy of Kano can update itself
 	automatic   bool // checks in the background
 	download    bool // and installs what it finds without asking
 	lastChecked time.Time
@@ -138,7 +138,7 @@ func (a *App) refreshAgents() {
 	a.ss.cliPath = cliInstalled()
 }
 
-// refreshService asks kerod how it is, off the main thread.
+// refreshService asks kanod how it is, off the main thread.
 func (a *App) refreshService() {
 	go func() {
 		line := locales.SvcNotRunning()
@@ -151,7 +151,7 @@ func (a *App) refreshService() {
 			}
 			up := time.Since(time.UnixMilli(c.Welcome.Started)).Round(time.Minute)
 			line = locales.SvcRunning(strconv.Itoa(c.Welcome.PID), durationWords(up), len(st.Sessions), panes)
-			if kerodStale(c.Welcome.App, c.Welcome.Build) {
+			if kanodStale(c.Welcome.App, c.Welcome.Build) {
 				line += locales.SvcStale()
 			}
 			c.Close()
@@ -222,7 +222,7 @@ func (a *App) settingsView(c *ui.Context) {
 			}
 		})
 		ui.Column(c).Grow(1).MinWidth(0).Padding(cardGap, cardGap, cardGap, 0).Children(func() {
-			card := raised(ui.Column(c).Grow(1).MinHeight(0).Radius(14).Background(pal.card), pal).Clip()
+			card := cardSurface(ui.Column(c).Grow(1).MinHeight(0).Radius(14).Background(pal.card), pal).Clip()
 			card.Children(func() {
 				page := settingsPages[0]
 				for _, p := range settingsPages {
@@ -536,7 +536,7 @@ func (a *App) browserPage(c *ui.Context, pal *palette) {
 	})
 }
 
-// adListRows are the filter lists to block with: those Kero offers, and
+// adListRows are the filter lists to block with: those Kano offers, and
 // those of other URLs the configuration names.
 func adListRows(c *ui.Context, pal *palette, s *settings.Settings) {
 	sources := slices.Clone(adblock.Catalog)
@@ -588,7 +588,7 @@ func adListDetail(src adblock.Source) string {
 
 func (a *App) updatesGroup(c *ui.Context, pal *palette) {
 	u := &a.ss.updates
-	version := "Kero " + mygo.App.Version()
+	version := "Kano " + mygo.App.Version()
 	switch {
 	case !u.enabled:
 		version += locales.SetVersionNoUpdate()
@@ -693,7 +693,7 @@ func (a *App) backgroundTile(c *ui.Context, pal *palette, id, name string) {
 	})
 }
 
-// fontChoices are the fonts the picker offers: kero's own first, then
+// fontChoices are the fonts the picker offers: kano's own first, then
 // the system's, then common coding fonts the user may have installed.
 var fontChoices = []string{"JetBrains Mono Nerd Font", "System", "SF Mono", "Menlo", "Monaco", "JetBrains Mono", "Fira Code", "Cascadia Code",
 	"Iosevka", "Berkeley Mono", "Geist Mono", "IBM Plex Mono", "Source Code Pro", "Hack", "Maple Mono"}
@@ -703,7 +703,7 @@ func (a *App) terminalPage(c *ui.Context, pal *palette) {
 	a.terminalPreview(c, pal)
 	settingsGroup(c, pal, locales.SetText(), "", func() {
 		settingRow(c, pal, locales.SetFont(), locales.SetFontDetail(), func() {
-			// The picker's names for the settings' values: "" is kero's
+			// The picker's names for the settings' values: "" is kano's
 			// font, "monospace" the system's.
 			family := s.FontFamily
 			switch family {
@@ -751,7 +751,7 @@ func (a *App) terminalPage(c *ui.Context, pal *palette) {
 			toggle(c.Key("thicken"), &s.Thicken, pal)
 		})
 	})
-	themes := append([]string{"kero"}, terminal.GhosttyThemes()...)
+	themes := append([]string{"kano"}, terminal.GhosttyThemes()...)
 	settingsGroup(c, pal, locales.SetColors(), locales.SetColorsDetail(), func() {
 		settingRow(c, pal, locales.SetLightWindows(), "", func() {
 			a.searchPopup(c, "light", s.LightTheme, themes, 240, nil, pal, func(v string) { a.set.LightTheme = v })
@@ -810,7 +810,7 @@ func (a *App) terminalPreview(c *ui.Context, pal *palette) {
 	box.Children(func() {
 		// Nerd Fonts' folder and branch icons: fonts without them show
 		// boxes, which is worth knowing before picking one.
-		line(ui.Span{Text: "\uf07b ~/dev/kero ", Color: th.Palette[4]}, ui.Span{Text: "\ue0a0 main ", Color: th.Palette[5]}, ui.Span{Text: "❯ ", Color: th.Palette[2]}, ui.Span{Text: "git status", Color: th.Foreground})
+		line(ui.Span{Text: "\uf07b ~/dev/kano ", Color: th.Palette[4]}, ui.Span{Text: "\ue0a0 main ", Color: th.Palette[5]}, ui.Span{Text: "❯ ", Color: th.Palette[2]}, ui.Span{Text: "git status", Color: th.Foreground})
 		line(ui.Span{Text: "modified:   ", Color: th.Foreground}, ui.Span{Text: "settings_view.go", Color: th.Palette[1]})
 		line(ui.Span{Text: "func ", Color: th.Palette[5]}, ui.Span{Text: "main", Color: th.Palette[4]}, ui.Span{Text: "() { x := a != b && c >= d => ok }", Color: th.Foreground})
 		ui.Row(c).Gap(4).Margin(10, 0, 0, 0).Children(func() {
@@ -904,7 +904,7 @@ func (a *App) notificationsPage(c *ui.Context, pal *palette) {
 		settingRow(c, pal, locales.SetDockBounce(), locales.SetDockBounceDetail(), func() { toggle(c.Key("nbo"), &s.BounceDock, pal) })
 	})
 	if button(c, "test-notif", locales.SetTestNotification(), "", false, pal) {
-		n := mygo.NewNotification(mygo.NotificationOptions{Title: "Kero", Body: locales.SetTestNotificationBody(), Silent: !s.NotifySound})
+		n := mygo.NewNotification(mygo.NotificationOptions{Title: "Kano", Body: locales.SetTestNotificationBody(), Silent: !s.NotifySound})
 		go func() {
 			if err := n.Show(); err != nil {
 				a.update(func() {
@@ -925,7 +925,7 @@ func (a *App) agentsPage(c *ui.Context, pal *palette) {
 			toggle(c.Key("remote"), &s.RemoteControl, pal)
 		})
 	})
-	codeBlock(c, pal, "kero do pane.split.down\nkero do session.attention\nkero actions        # what kero do runs")
+	codeBlock(c, pal, "kano do pane.split.down\nkano do session.attention\nkano actions        # what kano do runs")
 	settingsGroup(c, pal, locales.SetCli(), locales.SetCliDetail(), func() {
 		detail := locales.SetCliNotInstalled()
 		if a.ss.cliPath != "" {
@@ -968,10 +968,10 @@ func (a *App) agentsPage(c *ui.Context, pal *palette) {
 		}
 	})
 	settingsGroup(c, pal, locales.SetProgramStatus(), locales.SetProgramStatusDetail(), nil)
-	codeBlock(c, pal, "kero report working \"Deploying\" --progress 40\nkero report blocked \"Approve the migration?\" --kind permission\nkero report done \"Deployed\"")
+	codeBlock(c, pal, "kano report working \"Deploying\" --progress 40\nkano report blocked \"Approve the migration?\" --kind permission\nkano report done \"Deployed\"")
 }
 
-// docLink opens a page of Kero's documentation in the browser: the
+// docLink opens a page of Kano's documentation in the browser: the
 // accent's words and an arrow, under the group it tells more of.
 func docLink(c *ui.Context, pal *palette, key, label, url string) {
 	b := ui.ButtonBase(c.Key(key)).AlignSelf(ui.Start).Padding(2, 4).Gap(3).Radius(5).AlignItems(ui.Center).Label(label).Tooltip(url)
@@ -1012,7 +1012,7 @@ func (a *App) advancedPage(c *ui.Context, pal *palette) {
 		}
 	})
 	settingsGroup(c, pal, locales.SetBackgroundService(), locales.SetBackgroundServiceDetail(), func() {
-		settingRow(c, pal, "kerod", a.ss.service, func() {
+		settingRow(c, pal, "kanod", a.ss.service, func() {
 			if button(c, "svc-restart", locales.CommonRestart(), "", false, pal) {
 				a.ss.confirm = &confirmation{
 					open: true, title: locales.ConfirmRestartServiceTitle(),
@@ -1022,9 +1022,9 @@ func (a *App) advancedPage(c *ui.Context, pal *palette) {
 				}
 			}
 		})
-		settingRow(c, pal, locales.SetLog(), proto.ShortDir(filepath.Join(proto.Dir(), "kerod.log")), func() {
+		settingRow(c, pal, locales.SetLog(), proto.ShortDir(filepath.Join(proto.Dir(), "kanod.log")), func() {
 			if button(c, "log", locales.CommonShow(), "", false, pal) {
-				revealPath(filepath.Join(proto.Dir(), "kerod.log"))
+				revealPath(filepath.Join(proto.Dir(), "kanod.log"))
 			}
 		})
 	})
@@ -1076,7 +1076,7 @@ func (a *App) keyboardPage(c *ui.Context, pal *palette) {
 		ui.Text(c, a.ss.notice).FontSize(12).TextColor(pal.attention).Padding(0, 4)
 	}
 	q := strings.ToLower(strings.TrimSpace(a.ss.filter))
-	menus := []string{"Kero", "Session", "Edit", "Pane", "View"}
+	menus := []string{"Kano", "Session", "Edit", "Pane", "View"}
 	for _, menu := range menus {
 		var acts []actions.Action
 		for _, act := range actions.All {
@@ -1092,7 +1092,7 @@ func (a *App) keyboardPage(c *ui.Context, pal *palette) {
 		if len(acts) == 0 {
 			continue
 		}
-		title := map[string]func() string{"Kero": locales.MenuApp, "Session": locales.MenuSession, "Edit": locales.MenuEdit, "Pane": locales.MenuPane, "View": locales.MenuView}[menu]()
+		title := map[string]func() string{"Kano": locales.MenuApp, "Session": locales.MenuSession, "Edit": locales.MenuEdit, "Pane": locales.MenuPane, "View": locales.MenuView}[menu]()
 		settingsGroup(c, pal, title, "", func() {
 			for _, act := range acts {
 				a.shortcutRow(c, pal, act)

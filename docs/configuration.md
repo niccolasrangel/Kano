@@ -1,24 +1,24 @@
 ---
 title: Configuration
-description: Kero's configuration file, its keys and their defaults.
+description: Kano's configuration file, its keys and their defaults.
 ---
 
 # Configuration
 
-Kero keeps its settings in one plain-text file. The Settings window (<kbd>⌘</kbd> <kbd>,</kbd>) edits it for you, keeping your comments and order, and Kero reloads it when you edit it by hand.
+Kano keeps its settings in one plain-text file. The Settings window (<kbd>⌘</kbd> <kbd>,</kbd>) edits it for you, keeping your comments and order, and Kano reloads it when you edit it by hand.
 
 ## The file
 
-Kero reads, in order of preference:
+Kano reads, in order of preference:
 
-1. `$KERO_CONFIG`
-2. `$XDG_CONFIG_HOME/kero/config`
-3. `~/.config/kero/config`
+1. `$KANO_CONFIG`
+2. `$XDG_CONFIG_HOME/kano/config`
+3. `~/.config/kano/config`
 
 It uses Ghostty's syntax: one `key = value` per line, `#` for comments, and repeated lines for keys that hold lists. Where a key means what it means in Ghostty, it has Ghostty's name.
 
 ```ini
-# ~/.config/kero/config
+# ~/.config/kano/config
 font-size = 14
 theme = light:GitHub Light Default,dark:Catppuccin Mocha
 cursor-style = bar
@@ -32,9 +32,9 @@ keybind = cmd+shift+d=pane.split.down
 The file only needs what you change. Everything else keeps its default.
 
 ```sh
-kero config edit              # open it in $EDITOR
-kero config show              # every key with its current value
-kero config check             # report unknown keys and bad values
+kano config edit              # open it in $EDITOR
+kano config show              # every key with its current value
+kano config check             # report unknown keys and bad values
 ```
 
 ## General
@@ -45,7 +45,7 @@ kero config check             # report unknown keys and bad values
 | `session-name`          | `focused` | What names a session you haven't: `focused`, `lead` or `folder` ([more](./sessions.md#how-an-unnamed-session-is-named)) |
 | `focus-follows-mouse`   | `false`   | Focus the pane the pointer moves into                         |
 | `confirm-close`         | `true`    | Ask before closing a pane that a program is running in        |
-| `restore-sessions`      | `true`    | Start sessions again after kerod restarts, as after a reboot  |
+| `restore-sessions`      | `true`    | Start sessions again after kanod restarts, as after a reboot  |
 | `resume-agents`         | `true`    | As sessions start again, resume the conversation of the agent each pane ran |
 
 ## Appearance
@@ -53,7 +53,7 @@ kero config check             # report unknown keys and bad values
 | Key                  | Default  | Description                                                     |
 | -------------------- | -------- | --------------------------------------------------------------- |
 | `window-theme`       | `system` | The app's appearance: `system`, `light` or `dark`               |
-| `language`           | `system` | The app's language: `system`, `en` or `zh-Hans`                 |
+| `language`           | `system` | The app's language: `system`, `en`, `pt-BR` or `zh-Hans`        |
 | `background`         | `petal`  | The window's wash: `petal`, `mist`, `meadow`, `dusk` or `plain` |
 | `window-translucent` | `true`   | Let the desktop show through the window                         |
 
@@ -61,8 +61,8 @@ kero config check             # report unknown keys and bad values
 
 | Key                   | Default | Description                                                              |
 | --------------------- | ------- | ------------------------------------------------------------------------ |
-| `theme`               | `kero`  | Terminal colors: `kero`, any Ghostty theme, or `light:<theme>,dark:<theme>` |
-| `font-family`         |         | Empty for JetBrains Mono Nerd Font, which Kero includes; `monospace` for the system's |
+| `theme`               | `kano`  | Terminal colors: `kano`, any Ghostty theme, or `light:<theme>,dark:<theme>` |
+| `font-family`         |         | Empty for JetBrains Mono Nerd Font, which Kano includes; `monospace` for the system's |
 | `font-size`           | `13`    | In points                                                                |
 | `font-weight`         | `400`   | `100` to `900`                                                           |
 | `line-height`         | `1.22`  | A multiple of the font's                                                 |
@@ -100,18 +100,18 @@ kero config check             # report unknown keys and bad values
 
 | Key              | Default | Description                                         |
 | ---------------- | ------- | --------------------------------------------------- |
-| `remote-control` | `true`  | Let `kero do` and `kero focus` drive the app        |
+| `remote-control` | `true`  | Let `kano do` and `kano focus` drive the app        |
 
 ## Hosts
 
-Other machines whose sessions the app shows, and `kero -H` reaches. See [Remote Hosts](./remote.md).
+Other machines whose sessions the app shows, and `kano -H` reaches. See [Remote Hosts](./remote.md).
 
 | Key            | Default | Description |
 | -------------- | ------- | ----------- |
-| `host`         |         | A host, as `name=address`: `me@devbox` or `ssh://…` over SSH, `wsl://distro`, `http(s)://…` for kerod's tailnet listener. Add ` remote-control` after it to let its programs drive the app, and ` color=teal` (red, orange, amber, green, teal, blue, purple or pink) to mark its sessions. Repeat it for each host |
-| `listen`       |         | Let Kero on other machines reach this one: `tailnet://:7373` on its Tailscale addresses, `tailnet-serve://` for Tailscale Serve. Repeat it for each |
+| `host`         |         | A host, as `name=address`: `me@devbox` or `ssh://…` over SSH, `wsl://distro`, `http(s)://…` for kanod's tailnet listener. Add ` remote-control` after it to let its programs drive the app, and ` color=teal` (red, orange, amber, green, teal, blue, purple or pink) to mark its sessions. Repeat it for each host |
+| `listen`       |         | Let Kano on other machines reach this one: `tailnet://:7373` on its Tailscale addresses, `tailnet-serve://` for Tailscale Serve. Repeat it for each |
 | `listen-allow` |         | Who besides the machine's owner may connect: a tailnet login, `tag:name`, or `*` for anyone on the tailnet. Repeat it for each |
-| `remote-updates` | `false` | Let Kero on your other machines update the Kero app here to its version, which relaunches it |
+| `remote-updates` | `false` | Let Kano on your other machines update the Kano app here to its version, which relaunches it |
 
 ## Git
 
@@ -127,7 +127,7 @@ Other machines whose sessions the app shows, and `kero -H` reaches. See [Remote 
 | `browser-block-ads`   | `true`                     | [Block ads and trackers](./panes.md#blocking-ads) in browser panes                  |
 | `browser-filter-list` | `easylist`, `easyprivacy`  | A filter list to block with. Repeat it for each list; leave it empty for none       |
 
-`browser-filter-list` takes the lists Kero offers by name, or the `https://` URL of any list in Adblock Plus syntax:
+`browser-filter-list` takes the lists Kano offers by name, or the `https://` URL of any list in Adblock Plus syntax:
 
 | Name               | List                                                                |
 | ------------------ | ------------------------------------------------------------------- |
@@ -156,4 +156,4 @@ keybind = cmd+k=palette.open
 keybind = cmd+b=unbind
 ```
 
-Run `kero actions` for every action id, and see [Keyboard Shortcuts](./shortcuts.md) for the defaults.
+Run `kano actions` for every action id, and see [Keyboard Shortcuts](./shortcuts.md) for the defaults.

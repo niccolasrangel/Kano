@@ -14,16 +14,16 @@ import (
 
 	"github.com/egoist/mygo"
 
-	"kero/internal/client"
-	"kero/internal/proto"
-	"kero/internal/remote"
-	"kero/internal/settings"
-	"kero/internal/update"
+	"kano/internal/client"
+	"kano/internal/proto"
+	"kano/internal/remote"
+	"kano/internal/settings"
+	"kano/internal/update"
 
-	"kero/locales"
+	"kano/locales"
 )
 
-// host is a kerod the app shows: this machine's, first, then those of
+// host is a kanod the app shows: this machine's, first, then those of
 // the machines Settings › Hosts lists (the configuration's host keys),
 // each with a connection of its own, so that one far away, or gone,
 // holds up no other.
@@ -37,13 +37,13 @@ type host struct {
 	conn      connState
 	err       string // why the last connection failed
 	errKind   error  // remote.ErrNotInstalled, remote.ErrAuth, else nil
-	daemonApp string // the version of Kero kerod runs
+	daemonApp string // the version of Kano kanod runs
 	daemonFP  string // what its code is made of (proto.Welcome.Build)
 	info      proto.HostInfo
 	retries   int
 	gen       int    // connection attempts: the results of one another followed are dropped
 	dialing   bool   // a connection attempt is under way
-	kerod     string // which kerod it is (kerodID), once connected
+	kanod     string // which kanod it is (kanodID), once connected
 	loaded    bool   // a state came
 	viewSent  *string
 	// busy is what the app does on the host for the user: install, update
@@ -53,7 +53,7 @@ type host struct {
 
 func (h *host) remote() bool { return h.name != "" }
 
-// dialer opens connections to the host's kerod: this machine's socket,
+// dialer opens connections to the host's kanod: this machine's socket,
 // or a remote host's connection, never this machine's for a host the app
 // lost.
 func (h *host) dialer() client.Dialer {
@@ -82,7 +82,7 @@ func (h *host) label() string {
 	return h.name
 }
 
-// home is the host's home directory, as kerod there told.
+// home is the host's home directory, as kanod there told.
 func (h *host) home() string {
 	if !h.remote() {
 		return proto.Home()
@@ -127,7 +127,7 @@ func (h *host) joinPath(dir, name string) string {
 	return path.Join(dir, name)
 }
 
-// stale reports whether kerod runs another version of Kero than the one
+// stale reports whether kanod runs another version of Kano than the one
 // installed on the host, as after an update, or, for a remote host, than
 // this app.
 func (h *host) stale() bool {
@@ -137,44 +137,44 @@ func (h *host) stale() bool {
 	if h.remote() {
 		// Older than the bridge that answered, which a later update of the
 		// host leaves behind it, never ahead of it.
-		return h.info.Kero != "" && update.Compare(h.daemonApp, h.info.Kero) < 0
+		return h.info.Kano != "" && update.Compare(h.daemonApp, h.info.Kano) < 0
 	}
-	return kerodStale(h.daemonApp, h.daemonFP)
+	return kanodStale(h.daemonApp, h.daemonFP)
 }
 
-// kero is the version of Kero on a remote host: kerod's, else the one
+// kano is the version of Kano on a remote host: kanod's, else the one
 // that answered.
-func (h *host) kero() string {
+func (h *host) kano() string {
 	if h.daemonApp != "" {
 		return h.daemonApp
 	}
-	return h.info.Kero
+	return h.info.Kano
 }
 
-// behind reports whether Kero on a remote host is older than this app,
+// behind reports whether Kano on a remote host is older than this app,
 // of a server build that updates itself, which the app offers to update
 // to its own version: never back from a newer one.
 func (h *host) behind() bool {
-	return h.remote() && h.info.Updates && released(mygo.App.Version()) && h.kero() != "" &&
-		update.Compare(h.kero(), mygo.App.Version()) < 0
+	return h.remote() && h.info.Updates && released(mygo.App.Version()) && h.kano() != "" &&
+		update.Compare(h.kano(), mygo.App.Version()) < 0
 }
 
-// ahead reports whether Kero on a remote host is newer than this app,
+// ahead reports whether Kano on a remote host is newer than this app,
 // which then wants updating itself.
 func (h *host) ahead() bool {
-	return h.remote() && h.kero() != "" && released(h.kero()) && released(mygo.App.Version()) &&
-		update.Compare(h.kero(), mygo.App.Version()) > 0
+	return h.remote() && h.kano() != "" && released(h.kano()) && released(mygo.App.Version()) &&
+		update.Compare(h.kano(), mygo.App.Version()) > 0
 }
 
-// relaunchedEnv names the version of kerod the app relaunched for, which
+// relaunchedEnv names the version of kanod the app relaunched for, which
 // the app it starts again inherits: should the app on disk be no newer
 // after all, it relaunches once, not on and on.
-const relaunchedEnv = "KERO_RELAUNCHED_FOR"
+const relaunchedEnv = "KANO_RELAUNCHED_FOR"
 
-// relaunchForKerod relaunches the app into a newer Kero that this
-// machine's kerod runs, as after Kero on another machine updated the app
-// here (remote-updates) and kerod restarted into it.
-func relaunchForKerod(v string) {
+// relaunchForKanod relaunches the app into a newer Kano that this
+// machine's kanod runs, as after Kano on another machine updated the app
+// here (remote-updates) and kanod restarted into it.
+func relaunchForKanod(v string) {
 	app := mygo.App.Version()
 	if !released(v) || !released(app) || update.Compare(v, app) <= 0 ||
 		!mygo.Updater.Enabled() || os.Getenv(relaunchedEnv) == v {
@@ -184,7 +184,7 @@ func relaunchForKerod(v string) {
 	mygo.App.Relaunch()
 }
 
-// released tells a version of Kero that has a release to install: not a
+// released tells a version of Kano that has a release to install: not a
 // development build's.
 func released(v string) bool { return v != "" && !strings.Contains(v, "dev") && !mygo.IsDev() }
 
@@ -280,10 +280,10 @@ func (a *App) closeHost(h *host) {
 	}
 }
 
-// connect connects to this machine's kerod, starting it.
+// connect connects to this machine's kanod, starting it.
 func (a *App) connect() { a.connectHost(a.local()) }
 
-// connectHost connects to a host's kerod: through the remote connection
+// connectHost connects to a host's kanod: through the remote connection
 // it has, else a new one.
 func (a *App) connectHost(h *host) {
 	h.gen++
@@ -312,9 +312,9 @@ func (a *App) connectHost(h *host) {
 	}()
 }
 
-// appClientName says what the app is, for kero clients on a host.
+// appClientName says what the app is, for kano clients on a host.
 func appClientName() string {
-	s := "Kero"
+	s := "Kano"
 	if v := mygo.App.Version(); v != "" {
 		s += " " + v
 	}
@@ -337,8 +337,8 @@ func (a *App) connected(h *host, gen int, rc *remote.Conn, cl *client.Client, er
 	}
 	h.dialing = false
 	if err == nil && h.remote() {
-		if other := a.sameKerod(h, rc, cl); other != nil {
-			// One kerod, reached twice, as over SSH and the tailnet: its
+		if other := a.sameKanod(h, rc, cl); other != nil {
+			// One kanod, reached twice, as over SSH and the tailnet: its
 			// sessions would show twice, and pass for one another.
 			go cl.Close()
 			if rc != h.rc {
@@ -376,10 +376,10 @@ func (a *App) connected(h *host, gen int, rc *remote.Conn, cl *client.Client, er
 		return
 	}
 	h.cl, h.conn, h.err, h.errKind, h.retries = cl, connReady, "", nil, 0
-	h.kerod = kerodID(h, cl)
+	h.kanod = kanodID(h, cl)
 	h.daemonApp, h.daemonFP = cl.Welcome.App, cl.Welcome.Build
 	if !h.remote() {
-		relaunchForKerod(h.daemonApp)
+		relaunchForKanod(h.daemonApp)
 	}
 	cl.OnEvent(func(m proto.Message) { a.update(func() { a.event(h, cl, m) }) })
 	cl.Go("subscribe", nil, nil)
@@ -392,9 +392,9 @@ func (a *App) connected(h *host, gen int, rc *remote.Conn, cl *client.Client, er
 }
 
 // retryLater connects to a host again after a failure: this machine's a
-// few times, as kerod may be starting; another's for as long as the app
+// few times, as kanod may be starting; another's for as long as the app
 // runs, waiting longer each time, up to a minute, and a minute at once
-// when it has no Kero, or refuses the app, which the user fixes.
+// when it has no Kano, or refuses the app, which the user fixes.
 func (a *App) retryLater(h *host) {
 	gen := h.gen
 	var wait time.Duration
@@ -419,7 +419,7 @@ func (a *App) retryLater(h *host) {
 }
 
 // lost follows a remote connection that ended, as on a network gone, or
-// a laptop that slept: the host's terminals and kerod are reached again
+// a laptop that slept: the host's terminals and kanod are reached again
 // through a new one.
 func (a *App) lost(h *host, rc *remote.Conn) {
 	if h.rc != rc {
@@ -428,7 +428,7 @@ func (a *App) lost(h *host, rc *remote.Conn) {
 	h.rc = nil
 	go rc.Close()
 	if h.cl == nil && h.conn != connFailed {
-		// Nothing else follows the end: kerod was of another version.
+		// Nothing else follows the end: kanod was of another version.
 		h.conn = connConnecting
 		time.AfterFunc(time.Second, func() { a.update(func() { a.reconnect(h) }) })
 	}
@@ -441,7 +441,7 @@ func (a *App) reconnect(h *host) {
 	}
 }
 
-// disconnected follows a host's kerod going away, as when it was
+// disconnected follows a host's kanod going away, as when it was
 // restarted, or its connection ended: the terminals attached to it are
 // done, and the app connects again.
 func (a *App) disconnected(h *host, cl *client.Client) {
@@ -491,7 +491,7 @@ func (a *App) projectsOf(h *host) []proto.Project {
 
 // mergeState makes st a host's part of the state the app shows, the
 // hosts' parts in their order: what the app changed in the others before
-// their kerods' states come stays.
+// their kanods' states come stays.
 func (a *App) mergeState(h *host, st proto.State) {
 	var projects []proto.Project
 	var sessions []proto.Session
@@ -517,7 +517,7 @@ func (a *App) mergeState(h *host, st proto.State) {
 }
 
 // own records a session the app just made as a host's, before its
-// kerod's state, which has it, comes.
+// kanod's state, which has it, comes.
 func (a *App) own(h *host, s proto.Session) {
 	if a.owner == nil {
 		a.owner = map[string]*host{}
@@ -529,8 +529,8 @@ func (a *App) own(h *host, s proto.Session) {
 	}
 }
 
-// remoteControl reports whether a host's programs may drive the app (kero
-// focus, kero do): this machine's as Settings › Agents says, another's as
+// remoteControl reports whether a host's programs may drive the app (kano
+// focus, kano do): this machine's as Settings › Agents says, another's as
 // Settings › Hosts does.
 func (a *App) remoteControl(h *host) bool {
 	if !h.remote() {
@@ -562,7 +562,7 @@ func (a *App) allLoaded() bool {
 }
 
 // actionHost is the host an action runs for: the one whose program asked
-// for it (kero do), else the shown session's.
+// for it (kano do), else the shown session's.
 func (a *App) actionHost() *host {
 	if a.from != nil {
 		return a.from
@@ -570,9 +570,9 @@ func (a *App) actionHost() *host {
 	return a.selectedHost()
 }
 
-// kerodID tells a kerod apart from any other: its machine, its pid and
+// kanodID tells a kanod apart from any other: its machine, its pid and
 // when it started.
-func kerodID(h *host, cl *client.Client) string {
+func kanodID(h *host, cl *client.Client) string {
 	name := h.info.Hostname
 	if !h.remote() {
 		name, _ = os.Hostname()
@@ -580,17 +580,17 @@ func kerodID(h *host, cl *client.Client) string {
 	return fmt.Sprintf("%s/%d/%d", name, cl.Welcome.PID, cl.Welcome.Started)
 }
 
-// sameKerod returns the host whose kerod a connection reaches already,
+// sameKanod returns the host whose kanod a connection reaches already,
 // as this machine's over ssh://localhost, or one host added twice; nil
 // for none.
-func (a *App) sameKerod(h *host, rc *remote.Conn, cl *client.Client) *host {
+func (a *App) sameKanod(h *host, rc *remote.Conn, cl *client.Client) *host {
 	name := h.info.Hostname
 	if rc != nil {
 		name = rc.Welcome.Host.Hostname
 	}
 	id := fmt.Sprintf("%s/%d/%d", name, cl.Welcome.PID, cl.Welcome.Started)
 	for _, o := range a.hosts {
-		if o != h && o.kerod == id {
+		if o != h && o.kanod == id {
 			return o
 		}
 	}

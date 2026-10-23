@@ -7,9 +7,9 @@ import (
 	"github.com/egoist/mygo/plugins/terminal"
 	"github.com/egoist/mygo/ui"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 
-	"kero/locales"
+	"kano/locales"
 )
 
 const paneGap = 8 // between panes, where the divider is
@@ -60,7 +60,7 @@ func shownPanes(s *proto.Session) []string {
 	return []string{p.ID}
 }
 
-// setFocus moves the user into a pane, and tells kerod, which remembers it.
+// setFocus moves the user into a pane, and tells kanod, which remembers it.
 func (a *App) setFocus(s *proto.Session, pane string) {
 	if a.focus == nil {
 		a.focus = map[string]string{}
@@ -203,7 +203,7 @@ func (a *App) paneCard(c *ui.Context, pal *palette, bar ui.TitleBar, shown float
 		bg = pal.cardDim
 	}
 	card := ui.Column(c.Key("pane-" + p.ID)).Grow(1).Basis(0).MinWidth(0).MinHeight(0).Radius(14).Clip().Bind(a.paneRef("card-" + p.ID))
-	raised(card.Background(card.AnimateColor("bg", bg, ui.Animation{Duration: 140 * time.Millisecond})), pal)
+	cardSurface(card.Background(card.AnimateColor("bg", bg, ui.Animation{Duration: 140 * time.Millisecond})), pal)
 	hovered := card.Hovered()
 	if a.set.FocusFollowsMouse && multi {
 		a.followMouse(c, s, p, card, hovered, focused)
@@ -703,7 +703,7 @@ func (a *App) split(s *proto.Session, p proto.CreateParams) {
 	}()
 }
 
-// replaceSession puts a session as kerod answered into the state, before
+// replaceSession puts a session as kanod answered into the state, before
 // the state that has it comes.
 func (a *App) replaceSession(h *host, ns proto.Session) {
 	// Its new pane is the host's from now, as its terminal attaches there.
@@ -745,7 +745,7 @@ func (a *App) closePane(s *proto.Session, pane string, ask bool) {
 		}
 		return
 	}
-	// The neighbor taking the room takes the focus, as kerod does.
+	// The neighbor taking the room takes the focus, as kanod does.
 	if a.focusOf(s) == pane && s.Layout != nil {
 		for _, dir := range []string{"left", "up", "right", "down"} {
 			if n := s.Layout.Neighbor(pane, dir); n != "" {

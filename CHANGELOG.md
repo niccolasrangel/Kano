@@ -14,21 +14,21 @@
 
 - With the Tailscale app on a Mac, **Settings › Hosts › Let other
   machines connect** no longer says Tailscale isn't running when it is,
-  and kerod listens on your tailnet as it should.
+  and kanod listens on your tailnet as it should.
 
 ## 2.1.7
 
-- Kero can update a host that runs the Kero desktop app, not only the
-  server build: turn on **Settings › Hosts › Let them update Kero here**
+- Kano can update a host that runs the Kano desktop app, not only the
+  server build: turn on **Settings › Hosts › Let them update Kano here**
   on that computer (`remote-updates = true`), and its project in your
   sidebar shows **Update** when it's behind. The app there updates,
-  relaunches and restarts kerod. It's off unless you turn it on, and the
+  relaunches and restarts kanod. It's off unless you turn it on, and the
   host needs 2.1.7 itself, so update it there once more first.
 
 ## 2.1.6
 
-- A session open in Kero on two machines no longer takes the size of a
-  machine you've walked away from: Kero sizes it for the one you're at,
+- A session open in Kano on two machines no longer takes the size of a
+  machine you've walked away from: Kano sizes it for the one you're at,
   and gives it back to the other as soon as you return there or this one
   quits or sleeps. Hosts get it with their next update.
 - Panes and sessions on a Windows host are named by their folder
@@ -36,14 +36,14 @@
 
 ## 2.1.5
 
-- A session open in Kero on two machines takes the size of the one you're
+- A session open in Kano on two machines takes the size of the one you're
   using, the one you last typed, scrolled or switched to the session in,
   rather than of the last to resize it. Resizing a split on one machine
   no longer cuts off the bottom of the pane on the other. Hosts get it
   with their next update.
 - Dragging the divider between panes, or the sidebar's edge, leaves the
   keyboard in the pane you were typing in.
-- After an update, Kero offers to restart kerod only when the update
+- After an update, Kano offers to restart kanod only when the update
   changed it.
 
 ## 2.1.4
@@ -55,17 +55,17 @@
 ## 2.1.3
 
 - On Windows, turning on **Let other machines connect** in Settings ›
-  Hosts no longer flashes a console window open, nor does Kero on
+  Hosts no longer flashes a console window open, nor does Kano on
   another machine connecting to it.
 - Settings › Hosts leaves the commands for setting up a host to the guide
   it links to.
 
 ## 2.1.2
 
-- Settings › Hosts can share this computer with Kero on your other
+- Settings › Hosts can share this computer with Kano on your other
   machines: turn on **Let other machines connect**, and copy the address
-  it shows to add it there. kerod then listens on your tailnet, and only
-  your Tailscale account may connect. kerod now follows `listen` and
+  it shows to add it there. kanod then listens on your tailnet, and only
+  your Tailscale account may connect. kanod now follows `listen` and
   `listen-allow` in the config file as they change, without a restart,
   and a listener turned off drops the connections it took.
 - Hosts can be edited in Settings › Hosts: a host renamed keeps its
@@ -78,7 +78,7 @@
 
 - On Windows, the mouse wheel scrolls full-screen programs that take the
   mouse as they start, such as pi, rather than stepping through their
-  prompt history. Kero now runs panes in the newer console Windows
+  prompt history. Kano now runs panes in the newer console Windows
   Terminal uses, which it ships, so programs get the mouse, the wheel and
   what they draw as they would there. Windows hosts get it with their
   next update.
@@ -88,14 +88,14 @@
 - Browser panes show web pages beside your terminals: the dev server an
   agent works on, the docs it reads, the pull request it opened. One
   splits, zooms, moves and closes like any pane, and comes back on the
-  same page when Kero restarts. Open one with <kbd>⌘</kbd> <kbd>⇧</kbd>
+  same page when Kano restarts. Open one with <kbd>⌘</kbd> <kbd>⇧</kbd>
   <kbd>B</kbd>, by typing an address in the command palette, or with
-  `kero split --url localhost:3000`; <kbd>⌘</kbd> <kbd>L</kbd> goes to
+  `kano split --url localhost:3000`; <kbd>⌘</kbd> <kbd>L</kbd> goes to
   its address bar, which shows the site's icon.
-- `kero browser` drives a browser pane's page the way `kero send` and
-  `kero read` drive a terminal: it opens pages, clicks, types, waits for
+- `kano browser` drives a browser pane's page the way `kano send` and
+  `kano read` drive a terminal: it opens pages, clicks, types, waits for
   elements or text, reads the page's text and HTML, runs JavaScript and
-  takes screenshots. Like `kero do`, it needs Remote Control.
+  takes screenshots. Like `kano do`, it needs Remote Control.
 - Browser panes block ads and trackers, with EasyList and EasyPrivacy to
   begin with. Settings › Browser turns it off or picks other filter
   lists, or `browser-block-ads` and `browser-filter-list` in the config
@@ -107,20 +107,20 @@
   from fading.
 - The command palette finds commands and Settings pages by keywords, and
   by their English names in any language.
-- Kero shows sessions that run on other machines, such as a Linux dev box,
+- Kano shows sessions that run on other machines, such as a Linux dev box,
   a cloud VM or a WSL distribution, in the same sidebar, tagged with each
   host's name, with their statuses and notifications. Add a host in
-  Settings › Hosts by the address you'd give ssh, `me@devbox`: Kero
+  Settings › Hosts by the address you'd give ssh, `me@devbox`: Kano
   reaches it over
-  SSH with your keys and agent, or through kerod's listener on your
+  SSH with your keys and agent, or through kanod's listener on your
   tailnet (`listen = tailnet://:7373`), which Tailscale tells who
   connects to. One compressed connection carries all of a host's panes,
-  and a host whose link drops shows its sessions faded until Kero
+  and a host whose link drops shows its sessions faded until Kano
   reconnects on its own.
 - On a host, New Session, Open Project (which lists the host's folders),
   Command-clicking a path (which opens it in the host's `$EDITOR`) and
   pasting an image or files (which copies them to the host) all act on
-  the host. Its programs drive the app with `kero focus` and `kero do`
+  the host. Its programs drive the app with `kano focus` and `kano do`
   only once you turn on its Remote Control.
 - The sidebar stays flat with hosts: their projects follow yours, each
   tagged with its host's name, so the same repository on two machines
@@ -128,21 +128,21 @@
   as when it can't be reached; one with no sessions doesn't show. Its
   menu is in its projects'. Each host wears a color, picked from its name or set
   with `color=`, on its tag and its name in a pane's header. With hosts,
-  Open Project lists any machine's folders in Kero, with a switch
+  Open Project lists any machine's folders in Kano, with a switch
   between them.
-- The server build of Kero runs kerod and the CLI on Linux, macOS and
+- The server build of Kano runs kanod and the CLI on Linux, macOS and
   Windows with no app, display or GTK: `curl -fsSL
-  https://github.com/egoist/kero/releases/latest/download/install-server.sh
+  https://github.com/YOUR_GITHUB_USERNAME/kano/releases/latest/download/install-server.sh
   | sh`, or on Windows `irm .../install-server.ps1 | iex`. The app offers
-  to install it on a host that has no Kero, and to update it to the app's
+  to install it on a host that has no Kano, and to update it to the app's
   version, signed as the app's updates are. Windows hosts are reached
   over OpenSSH, whose shell may be cmd or PowerShell.
-- `kero -H <host>` and `$KERO_HOST` run commands on a host's sessions; `kero
-  hosts` adds, checks and installs hosts; `kero clients` lists who is
-  connected to kerod; `kero daemon install-service` runs kerod as a
+- `kano -H <host>` and `$KANO_HOST` run commands on a host's sessions; `kano
+  hosts` adds, checks and installs hosts; `kano clients` lists who is
+  connected to kanod; `kano daemon install-service` runs kanod as a
   systemd user service, a launchd agent or a Task Scheduler task, and
-  `kero daemon serve` in the foreground.
-- kerod's socket is its user's from the moment it is made, and kerod
+  `kano daemon serve` in the foreground.
+- kanod's socket is its user's from the moment it is made, and kanod
   refuses connections of other users' processes. The login shell is
   looked up through NSS, so LDAP and SSSD accounts get theirs.
 
@@ -171,13 +171,13 @@
   below it, which follows the file as it changes. Fold a file, resize the
   panel, switch between unified and side-by-side diffs, and in Last Turn
   revert a change or mark it kept.
-- `kero diff` prints a pane's changes as `git diff` does, untracked files
-  included; `--turn` and `--branch` choose what to compare against. `kero
-  status --json` and `kero ls --json` include each pane's branch and
+- `kano diff` prints a pane's changes as `git diff` does, untracked files
+  included; `--turn` and `--branch` choose what to compare against. `kano
+  status --json` and `kano ls --json` include each pane's branch and
   changes.
 - Sessions in a worktree outside its repository join the repository's
   project instead of starting one of their own.
-- `git-status = false` stops Kero running git in your repositories, and
+- `git-status = false` stops Kano running git in your repositories, and
   `diff-layout` keeps the changes panel's diffs unified or side by side.
 
 ## 2.0.9
@@ -228,9 +228,9 @@
 - Box drawing and blocks keep their colors under `minimum-contrast`, and
   only rows a program fills extend into a pane's padding, as in Ghostty:
   Copilot CLI's input box and tabs draw as they should.
-- A name an agent gave its session with `kero rename` goes when a new
+- A name an agent gave its session with `kano rename` goes when a new
   conversation starts in the session's first pane.
-- After updating, Kero asks to restart kerod, whose sessions restore as
+- After updating, Kano asks to restart kanod, whose sessions restore as
   after a restart of the Mac.
 
 ## 2.0.5
@@ -244,7 +244,7 @@
   rather than the folder its shell started in. Links, Copy Directory and
   Reveal follow it.
 - Codex sessions are told to the pane that runs them, for resuming after
-  kerod restarts, rather than to the pane that first started Codex's
+  kanod restarts, rather than to the pane that first started Codex's
   background service.
 
 ## 2.0.4
@@ -266,23 +266,23 @@
 
 ## 2.0.1
 
-- Kero speaks Simplified Chinese; pick the language in Settings.
+- Kano speaks Simplified Chinese; pick the language in Settings.
 - Rename a project from its menu in the sidebar.
-- `kero skill setup` hooks Claude Code, Codex, Pi and OpenCode into Kero as
+- `kano skill setup` hooks Claude Code, Codex, Pi and OpenCode into Kano as
   they start: an agent learns its session and pane, names an unnamed session
-  after its task, and resumes when kerod restarts.
-- `kero new|split --wait` and `kero wait --exit` exit with the command's
+  after its task, and resumes when kanod restarts.
+- `kano new|split --wait` and `kano wait --exit` exit with the command's
   status.
-- When kerod runs another version of Kero, a Restart Service chip offers to
+- When kanod runs another version of Kano, a Restart Service chip offers to
   restart it. Settings shows updates on its General page.
 - A home directory pane shows `~` once in its header.
 
 ## 2.0.0
 
-Kero, rewritten from the ground up: sessions grouped by project in a sidebar
+Kano, rewritten from the ground up: sessions grouped by project in a sidebar
 that shows which are working, which need you and which are done. Sessions run
-in kerod, a daemon of their own, so quitting Kero leaves them running.
+in kanod, a daemon of their own, so quitting Kano leaves them running.
 
 - Runs on macOS, Windows and Linux.
-- The `kero` CLI drives sessions from a shell or an agent.
-- Updates itself from Kero's releases.
+- The `kano` CLI drives sessions from a shell or an agent.
+- Updates itself from Kano's releases.

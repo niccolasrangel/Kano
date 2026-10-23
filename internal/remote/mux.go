@@ -16,7 +16,7 @@ import (
 
 	"github.com/hashicorp/yamux"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
 // Heartbeats: a ping every few seconds, and a link that answers none, or
@@ -78,11 +78,11 @@ type buffered struct {
 
 // Options are what a client says of itself as it dials.
 type Options struct {
-	App    string // the version of Kero
-	Client string // "Kero 2.1.0 on laptop"
+	App    string // the version of Kano
+	Client string // "Kano 2.1.0 on laptop"
 }
 
-// Conn is a remote connection: streams to kerod on a host.
+// Conn is a remote connection: streams to kanod on a host.
 type Conn struct {
 	Addr    Addr
 	Welcome proto.MuxWelcome
@@ -163,7 +163,7 @@ func handshake(ctx context.Context, tr io.ReadWriteCloser, a Addr, o Options) (*
 	}
 	if w.Mux != proto.MuxVersion {
 		tr.Close()
-		return nil, fmt.Errorf("Kero %s on the host connects otherwise: update it, or this app", w.Host.Kero)
+		return nil, fmt.Errorf("Kano %s on the host connects otherwise: update it, or this app", w.Host.Kano)
 	}
 	var rwc io.ReadWriteCloser = buffered{br, tr, tr}
 	if w.Compress == deflate {
@@ -199,10 +199,10 @@ func readWelcome(br *bufio.Reader) (proto.MuxWelcome, error) {
 			junk = append(junk, line...)
 		}
 	}
-	return w, fmt.Errorf("the host answered what is not Kero: %q", bytes.TrimSpace(junk[:min(len(junk), 200)]))
+	return w, fmt.Errorf("the host answered what is not Kano: %q", bytes.TrimSpace(junk[:min(len(junk), 200)]))
 }
 
-// Open opens a stream: a connection to kerod, as the local socket gives.
+// Open opens a stream: a connection to kanod, as the local socket gives.
 func (c *Conn) Open() (net.Conn, error) {
 	st, err := c.sess.OpenStream()
 	if err != nil {
@@ -228,7 +228,7 @@ func (c *Conn) Close() error {
 // Ping measures the round trip to the host.
 func (c *Conn) Ping() (time.Duration, error) { return c.sess.Ping() }
 
-// Host asks the host to restart kerod or update Kero (proto.KindRestart,
+// Host asks the host to restart kanod or update Kano (proto.KindRestart,
 // proto.KindUpdate), waiting as long as ctx lets it.
 func (c *Conn) Host(ctx context.Context, req proto.HostRequest) error {
 	st, err := c.Open()
@@ -270,17 +270,17 @@ func (s stream) Close() error {
 	return err
 }
 
-// Server answers remote connections: the bridge's, and kerod's network
+// Server answers remote connections: the bridge's, and kanod's network
 // listeners'.
 type Server struct {
 	// Info describes the host, for the client.
 	Info func() proto.HostInfo
-	// Stream serves a stream that opens with a Hello for kerod, hello,
+	// Stream serves a stream that opens with a Hello for kanod, hello,
 	// which s reads on from. mux is what the client said of itself.
 	Stream func(s net.Conn, hello []byte, mux proto.MuxHello)
 	// Restart and Update answer proto.KindRestart and KindUpdate; nil
 	// refuses them. What Restart returns to do runs once the answer is
-	// written: a kerod that restarts itself ends with it.
+	// written: a kanod that restarts itself ends with it.
 	Restart func() (then func(), err error)
 	Update  func(app string) error
 	// Closed, when set, runs as the connection ends.
@@ -306,9 +306,9 @@ func (s *Server) Serve(rwc io.ReadWriteCloser) error {
 	w := proto.MuxWelcome{Mux: proto.MuxVersion, Host: s.Info()}
 	switch {
 	case json.Unmarshal(line, &hello) != nil || hello.Kind != proto.KindMux:
-		w.Error = "this is Kero's remote connection: connect with Kero"
+		w.Error = "this is Kano's remote connection: connect with Kano"
 	case hello.Mux != proto.MuxVersion:
-		w.Error = fmt.Sprintf("Kero %s on %s connects otherwise than this app: update the older one", w.Host.Kero, w.Host.Hostname)
+		w.Error = fmt.Sprintf("Kano %s on %s connects otherwise than this app: update the older one", w.Host.Kano, w.Host.Hostname)
 	}
 	if w.Error == "" && slices.Contains(hello.Compress, deflate) {
 		w.Compress = deflate
@@ -349,7 +349,7 @@ func (s *Server) Serve(rwc io.ReadWriteCloser) error {
 	}
 }
 
-// stream serves a stream: a host stream here, else kerod's.
+// stream serves a stream: a host stream here, else kanod's.
 func (s *Server) stream(st *yamux.Stream, mux proto.MuxHello) {
 	br := bufio.NewReaderSize(st, 4<<10)
 	st.SetReadDeadline(time.Now().Add(15 * time.Second))
@@ -373,7 +373,7 @@ func (s *Server) stream(st *yamux.Stream, mux proto.MuxHello) {
 	switch req.Kind {
 	case proto.KindRestart:
 		if s.Restart == nil {
-			reply(errors.New("this host restarts kerod otherwise"))
+			reply(errors.New("this host restarts kanod otherwise"))
 			return
 		}
 		then, err := s.Restart()
@@ -383,7 +383,7 @@ func (s *Server) stream(st *yamux.Stream, mux proto.MuxHello) {
 		}
 	case proto.KindUpdate:
 		if s.Update == nil {
-			reply(errors.New("Kero on this host updates as it was installed: update it there"))
+			reply(errors.New("Kano on this host updates as it was installed: update it there"))
 			return
 		}
 		reply(s.Update(req.App))

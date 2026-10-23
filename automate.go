@@ -10,24 +10,24 @@ import (
 
 	"github.com/egoist/mygo"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
-// browseTimeout is how long kero browser waits, unless told: for an
+// browseTimeout is how long kano browser waits, unless told: for an
 // element to show, or a page to load.
 const browseTimeout = 10 * time.Second
 
-// browse does what kero browser asks of a browser pane's page, and
+// browse does what kano browser asks of a browser pane's page, and
 // answers: what waits on the page waits off the main thread. It is a
-// remote control of the app, as kero do is, and takes the user's leave
-// as kero do does.
+// remote control of the app, as kano do is, and takes the user's leave
+// as kano do does.
 func (a *App) browse(h *host, r *proto.BrowserRequest, answer func(*proto.BrowserResult, error)) {
 	fail := func(format string, args ...any) { answer(nil, fmt.Errorf(format, args...)) }
 	if !a.remoteControl(h) {
 		if h.remote() {
-			fail("Remote Control of %s is off: turn it on in Kero's Settings › Hosts", h.name)
+			fail("Remote Control of %s is off: turn it on in Kano's Settings › Hosts", h.name)
 		} else {
-			fail("Remote Control is off: turn it on in Kero's Settings › Agents")
+			fail("Remote Control is off: turn it on in Kano's Settings › Agents")
 		}
 		return
 	}
@@ -47,7 +47,7 @@ func (a *App) browse(h *host, r *proto.BrowserRequest, answer func(*proto.Browse
 		return
 	}
 	// A pane never shown has no page yet: it gets one now, on the page
-	// kerod has, which loads though no one sees it, before it is used.
+	// kanod has, which loads though no one sees it, before it is used.
 	_, had := a.webs[p.ID]
 	e := a.ensureWeb(p)
 	if e.view == nil {
@@ -137,7 +137,7 @@ func (a *App) browse(h *host, r *proto.BrowserRequest, answer func(*proto.Browse
 				return nil, err
 			case len(png) == 0:
 				// A web view draws only where the window shows it.
-				return nil, fmt.Errorf("pane %s is not shown, so it has no picture: show it with kero focus %s, then try again", r.Pane, r.Pane)
+				return nil, fmt.Errorf("pane %s is not shown, so it has no picture: show it with kano focus %s, then try again", r.Pane, r.Pane)
 			}
 			return &proto.BrowserResult{PNG: png}, nil
 		})
@@ -231,7 +231,7 @@ func settle(page *mygo.Page, done <-chan error, timeout time.Duration) error {
 	}
 }
 
-// pageScript is the script that does a kero browser command on the page:
+// pageScript is the script that does a kano browser command on the page:
 // it waits for the element the command needs, then does as a user would,
 // with the events a page listens to.
 func pageScript(p proto.BrowserParams, timeout time.Duration) string {

@@ -8,11 +8,11 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"kero/internal/actions"
+	"kano/internal/actions"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 
-	"kero/locales"
+	"kano/locales"
 )
 
 // paletteState is the command palette's: a field that finds sessions and

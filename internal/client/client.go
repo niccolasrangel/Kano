@@ -1,4 +1,4 @@
-// Package client connects to kerod, starting it when it is not running.
+// Package client connects to kanod, starting it when it is not running.
 package client
 
 import (
@@ -18,22 +18,22 @@ import (
 	"github.com/egoist/mygo/plugins/terminal"
 	"github.com/egoist/mygo/ui"
 
-	"kero/internal/detach"
-	"kero/internal/proto"
-	"kero/internal/service"
+	"kano/internal/detach"
+	"kano/internal/proto"
+	"kano/internal/service"
 )
 
 // ErrVersion is returned when the daemon running speaks another protocol,
-// as after kero was updated: it has to be restarted.
-var ErrVersion = errors.New("kerod is of another version")
+// as after kano was updated: it has to be restarted.
+var ErrVersion = errors.New("kanod is of another version")
 
-// Dialer opens connections to a kerod: this machine's, through its socket
+// Dialer opens connections to a kanod: this machine's, through its socket
 // (Local), or a host's, as streams of a remote connection (remote.Conn).
 type Dialer interface {
 	Dial() (net.Conn, error)
 }
 
-// Local is this machine's kerod, which a dial starts unless NoStart.
+// Local is this machine's kanod, which a dial starts unless NoStart.
 type Local struct{ NoStart bool }
 
 func (l Local) Dial() (net.Conn, error) { return dial(l.NoStart) }
@@ -46,7 +46,7 @@ func dial(noStart bool) (net.Conn, error) {
 		return conn, nil
 	}
 	if noStart {
-		return nil, fmt.Errorf("kerod is not running: %w", err)
+		return nil, fmt.Errorf("kanod is not running: %w", err)
 	}
 	if err := StartDaemon(); err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func dial(noStart bool) (net.Conn, error) {
 			return conn, nil
 		}
 		if time.Now().After(deadline) {
-			return nil, fmt.Errorf("kerod did not start: %w (see %s)", err, filepath.Join(proto.Dir(), "kerod.log"))
+			return nil, fmt.Errorf("kanod did not start: %w (see %s)", err, filepath.Join(proto.Dir(), "kanod.log"))
 		}
 		time.Sleep(20 * time.Millisecond)
 	}
@@ -69,21 +69,21 @@ func dial(noStart bool) (net.Conn, error) {
 // from aside, and os.Executable then names the old one.
 var Exe string
 
-// StartDaemon starts kerod in the background: the service, when kerod
-// runs as one (kero daemon install-service), else this executable (Exe),
+// StartDaemon starts kanod in the background: the service, when kanod
+// runs as one (kano daemon install-service), else this executable (Exe),
 // in a session of its own, so that it outlives whoever started it.
 func StartDaemon() error {
-	// The service's, or none: a kerod beside it would hold the lock its
+	// The service's, or none: a kanod beside it would hold the lock its
 	// manager starts the service's for, again and again. But Task
 	// Scheduler's, which starts none while no one is logged on to the
-	// machine, and never again: a kerod of its own then.
+	// machine, and never again: a kanod of its own then.
 	if service.Installed() {
 		err := service.Start()
 		if err == nil {
 			return nil
 		}
 		if runtime.GOOS != "windows" {
-			return fmt.Errorf("kerod's service did not start: %w", err)
+			return fmt.Errorf("kanod's service did not start: %w", err)
 		}
 	}
 	exe := Exe
@@ -96,12 +96,12 @@ func StartDaemon() error {
 	if err := os.MkdirAll(proto.Dir(), 0o700); err != nil {
 		return err
 	}
-	logf, err := os.OpenFile(filepath.Join(proto.Dir(), "kerod.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
+	logf, err := os.OpenFile(filepath.Join(proto.Dir(), "kanod.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 	if err != nil {
 		return err
 	}
 	defer logf.Close()
-	cmd := exec.Command(exe, "__kerod")
+	cmd := exec.Command(exe, "__kanod")
 	cmd.Dir = proto.Home()
 	cmd.Stdout, cmd.Stderr = logf, logf
 	cmd, err = detach.Start(cmd)
@@ -169,7 +169,7 @@ type response struct {
 	err    error
 }
 
-// Connect opens a control connection to this machine's kerod, starting it
+// Connect opens a control connection to this machine's kanod, starting it
 // unless noStart.
 func Connect(noStart bool) (*Client, error) { return ConnectVia(Local{NoStart: noStart}) }
 
@@ -205,7 +205,7 @@ func (c *Client) read(r *bufio.Reader) {
 	defer func() {
 		c.mu.Lock()
 		for id, ch := range c.pending {
-			ch <- response{err: errors.New("kerod went away")}
+			ch <- response{err: errors.New("kanod went away")}
 			delete(c.pending, id)
 		}
 		c.mu.Unlock()

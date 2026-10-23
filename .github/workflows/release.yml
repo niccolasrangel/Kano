@@ -67,32 +67,6 @@ jobs:
       - name: Install NSIS, for the Windows installers
         if: matrix.name == 'Windows'
         run: sudo apt-get update && sudo apt-get install -y nsis
-      # Signs with the Developer ID of mygo.json and notarizes with its
-      # NOTARY profile, both from a keychain of the job's own.
-      - name: Import the certificate and the notary credentials
-        if: runner.os == 'macOS'
-        env:
-          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
-        run: |
-          keychain="$RUNNER_TEMP/signing.keychain-db"
-          password="$(openssl rand -base64 24)"
-          security create-keychain -p "$password" "$keychain"
-          security set-keychain-settings -lut 21600 "$keychain"
-          security unlock-keychain -p "$password" "$keychain"
-          echo "$MACOS_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
-          security import "$RUNNER_TEMP/certificate.p12" -k "$keychain" \
-            -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-          rm "$RUNNER_TEMP/certificate.p12"
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$password" "$keychain"
-          security list-keychains -d user -s "$keychain" login.keychain
-          xcrun notarytool store-credentials NOTARY --keychain "$keychain" \
-            --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD"
-          jq --arg k "$keychain" '.macos.notarize.keychain = $k' mygo.json > "$RUNNER_TEMP/mygo.json"
-          mv "$RUNNER_TEMP/mygo.json" mygo.json
       - name: Build and upload
         env:
           GH_TOKEN: ${{ github.token }}
@@ -111,8 +85,8 @@ jobs:
           go-version-file: go.mod
       - run: go test ./internal/...
 
-  # The server build of Kero, for machines whose sessions the app shows
-  # (Settings › Hosts): kerod and the kero CLI without the app, with
+  # The server build of Kano, for machines whose sessions the app shows
+  # (Settings › Hosts): kanod and the kano CLI without the app, with
   # libghostty-vt, for Linux, macOS and Windows, which the install scripts
   # install and the server build updates itself from (internal/update).
   # Each archive is checked on its own platform.
@@ -169,7 +143,7 @@ jobs:
           for p in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64 windows-amd64 windows-arm64; do
             ext=tar.gz
             case "$p" in windows-*) ext=zip ;; esac
-            a="kero-server-$version-$p.$ext"
+            a="kano-server-$version-$p.$ext"
             want="$want $a $a.sig $a.sha256"
           done
           for w in $want; do

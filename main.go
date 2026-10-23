@@ -1,10 +1,10 @@
-// kero is a terminal for coding agents: sessions grouped by project in a
+// kano is a terminal for coding agents: sessions grouped by project in a
 // sidebar that shows which work, which need you and which are done. The
-// sessions run in kerod, a daemon of their own, so quitting kero leaves
+// sessions run in kanod, a daemon of their own, so quitting kano leaves
 // them running, and opening it again shows everything as it was.
 //
-// The same executable is the kero CLI (kero help), which drives sessions
-// from a shell or an agent, and kerod itself (kero __kerod).
+// The same executable is the kano CLI (kano help), which drives sessions
+// from a shell or an agent, and kanod itself (kano __kanod).
 package main
 
 import (
@@ -21,20 +21,20 @@ import (
 	"github.com/egoist/mygo/ui"
 	"golang.org/x/term"
 
-	"kero/internal/cli"
-	"kero/internal/clilink"
-	"kero/internal/daemon"
-	"kero/internal/proto"
+	"kano/internal/cli"
+	"kano/internal/clilink"
+	"kano/internal/daemon"
+	"kano/internal/proto"
 
-	"kero/locales"
+	"kano/locales"
 )
 
 func main() {
 	if len(os.Args) > 1 {
 		switch {
-		case os.Args[1] == "__kerod":
+		case os.Args[1] == "__kanod":
 			if err := daemon.Run(daemon.Options{}); err != nil {
-				fmt.Fprintln(os.Stderr, "kerod:", err)
+				fmt.Fprintln(os.Stderr, "kanod:", err)
 				os.Exit(1)
 			}
 			return
@@ -42,7 +42,7 @@ func main() {
 			os.Exit(cli.Run(os.Args[1:]))
 		}
 	}
-	// `kero` alone in a terminal, through the CLI's link to the app's
+	// `kano` alone in a terminal, through the CLI's link to the app's
 	// executable: open the app as the Finder would.
 	if len(os.Args) == 1 && term.IsTerminal(int(os.Stdin.Fd())) {
 		if exe, err := os.Executable(); err == nil {
@@ -66,17 +66,17 @@ func main() {
 }
 
 func runApp() {
-	// Started from a pane, as Kero Dev by `mygo dev` in the installed Kero:
-	// the pane's variables name its kerod, not this build's.
-	if os.Getenv("KERO_PANE") != "" {
-		for _, k := range []string{"KERO_SOCKET", "KERO_SESSION", "KERO_PANE"} {
+	// Started from a pane, as Kano Dev by `mygo dev` in the installed Kano:
+	// the pane's variables name its kanod, not this build's.
+	if os.Getenv("KANO_PANE") != "" {
+		for _, k := range []string{"KANO_SOCKET", "KANO_SESSION", "KANO_PANE"} {
 			os.Unsetenv(k)
 		}
 	}
 	if !mygo.App.RequestSingleInstanceLock() {
 		return
 	}
-	// Updates from Kero's GitHub releases, in a window of native UI.
+	// Updates from Kano's GitHub releases, in a window of native UI.
 	mygo.Use(native.Plugin)
 	a := newApp()
 	loadFonts()
@@ -116,7 +116,7 @@ func runApp() {
 	})
 	mygo.App.WhenReady(func() {
 		a.win = mygo.NewWindow(framed(mygo.WindowOptions{
-			Title:     "Kero",
+			Title:     "Kano",
 			Width:     1180,
 			Height:    760,
 			MinWidth:  560,

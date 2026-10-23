@@ -10,15 +10,15 @@ import (
 	"strings"
 	"time"
 
-	"kero/internal/client"
-	"kero/internal/proto"
+	"kano/internal/client"
+	"kano/internal/proto"
 )
 
-// browserCommands are what kero browser does to a page, which name no
-// target: kero browser text is this session's browser's text.
+// browserCommands are what kano browser does to a page, which name no
+// target: kano browser text is this session's browser's text.
 var browserCommands = []string{"open", "back", "forward", "reload", "text", "html", "click", "type", "wait", "eval", "screenshot"}
 
-// browserCmd drives a browser pane's page, which the app has: kerod asks
+// browserCmd drives a browser pane's page, which the app has: kanod asks
 // the app, and hands its answer back.
 func browserCmd(c *client.Client, st proto.State, args []string) error {
 	f, err := parse(args, map[string]string{"timeout": "timeout", "t": "timeout", "o": "out", "out": "out", "text": "text"},
@@ -26,7 +26,7 @@ func browserCmd(c *client.Client, st proto.State, args []string) error {
 	if err != nil {
 		return err
 	}
-	const use = "kero browser [target] <open|back|forward|reload|text|html|click|type|wait|eval|screenshot> [args…]"
+	const use = "kano browser [target] <open|back|forward|reload|text|html|click|type|wait|eval|screenshot> [args…]"
 	pos := f.pos
 	var t target
 	if len(pos) > 0 && !slices.Contains(browserCommands, pos[0]) {
@@ -36,7 +36,7 @@ func browserCmd(c *client.Client, st proto.State, args []string) error {
 		pos = pos[1:]
 	} else {
 		if t, err = findOrCurrent(st, nil); err != nil {
-			return usageErr("which browser? (outside kero, name one): %s", use)
+			return usageErr("which browser? (outside kano, name one): %s", use)
 		}
 		// The pane a command runs in is a terminal: its session's
 		// browser is meant.
@@ -58,7 +58,7 @@ func browserCmd(c *client.Client, st proto.State, args []string) error {
 		return err
 	}
 	p := proto.BrowserParams{ID: pane, Op: op, Timeout: timeout}
-	// The text after the arguments, as kero send takes it: all of them,
+	// The text after the arguments, as kano send takes it: all of them,
 	// those after -- too, or - for stdin.
 	rest := func(from []string) (string, error) {
 		text := strings.Join(append(from, f.rest...), " ")
@@ -74,27 +74,27 @@ func browserCmd(c *client.Client, st proto.State, args []string) error {
 			return err
 		}
 		if strings.TrimSpace(p.Text) == "" {
-			return usageErr("kero browser [target] open <url>")
+			return usageErr("kano browser [target] open <url>")
 		}
 	case "back", "forward", "reload", "screenshot":
 		if len(pos) > 0 || len(f.rest) > 0 {
-			return usageErr("kero browser [target] %s takes no arguments", op)
+			return usageErr("kano browser [target] %s takes no arguments", op)
 		}
 	case "text", "html":
 		if len(pos) > 1 {
-			return usageErr("kero browser [target] %s [selector]", op)
+			return usageErr("kano browser [target] %s [selector]", op)
 		}
 		if len(pos) == 1 {
 			p.Selector = pos[0]
 		}
 	case "click":
 		if len(pos) != 1 {
-			return usageErr("kero browser [target] click <selector>")
+			return usageErr("kano browser [target] click <selector>")
 		}
 		p.Selector = pos[0]
 	case "type":
 		if len(pos) < 1 {
-			return usageErr("kero browser [target] type <selector> <text…> [--enter]")
+			return usageErr("kano browser [target] type <selector> <text…> [--enter]")
 		}
 		p.Selector, p.Enter = pos[0], f.set["enter"]
 		if p.Text, err = rest(pos[1:]); err != nil {
@@ -102,7 +102,7 @@ func browserCmd(c *client.Client, st proto.State, args []string) error {
 		}
 	case "wait":
 		if len(pos) > 1 {
-			return usageErr("kero browser [target] wait [selector] [--text text]")
+			return usageErr("kano browser [target] wait [selector] [--text text]")
 		}
 		if len(pos) == 1 {
 			p.Selector = pos[0]
@@ -113,7 +113,7 @@ func browserCmd(c *client.Client, st proto.State, args []string) error {
 			return err
 		}
 		if strings.TrimSpace(p.Text) == "" {
-			return usageErr("kero browser [target] eval <js…>")
+			return usageErr("kano browser [target] eval <js…>")
 		}
 	}
 	if f.vals["out"] != "" && op != "screenshot" {
@@ -164,7 +164,7 @@ func browserOf(t target) (string, error) {
 	case 1:
 		return ids[0], nil
 	case 0:
-		return "", fmt.Errorf("%w: session %s has no browser pane (open one with kero split --url <url>)", errNotFound, t.s.ID)
+		return "", fmt.Errorf("%w: session %s has no browser pane (open one with kano split --url <url>)", errNotFound, t.s.ID)
 	}
 	return "", fmt.Errorf("%w: session %s has several browser panes, name one: %s", errNotFound, t.s.ID, strings.Join(ids, ", "))
 }
@@ -180,7 +180,7 @@ func saveShot(png []byte, pane, out string) error {
 		return err
 	}
 	if out == "" {
-		out = filepath.Join(os.TempDir(), fmt.Sprintf("kero-%s-%s.png", pane, time.Now().Format("20060102-150405.000")))
+		out = filepath.Join(os.TempDir(), fmt.Sprintf("kano-%s-%s.png", pane, time.Now().Format("20060102-150405.000")))
 	}
 	if err := os.WriteFile(out, png, 0o644); err != nil {
 		return err

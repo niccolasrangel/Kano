@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"time"
 
-	"kero/internal/proto"
-	"kero/internal/settings"
+	"kano/internal/proto"
+	"kano/internal/settings"
 )
 
 // The daemon keeps its projects and sessions in state.json, and each

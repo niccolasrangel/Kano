@@ -1,5 +1,5 @@
-// Package settings is kero's settings: one file, settings.json in kero's
-// directory, that the app writes from its Settings window and kerod reads
+// Package settings is kano's settings: one file, settings.json in kano's
+// directory, that the app writes from its Settings window and kanod reads
 // as it starts panes, so that the shell, its environment and the
 // scrollback apply to new panes at once.
 package settings
@@ -13,9 +13,9 @@ import (
 	"strings"
 	"sync"
 
-	"kero/internal/adblock"
-	"kero/internal/proto"
-	"kero/internal/remote"
+	"kano/internal/adblock"
+	"kano/internal/proto"
+	"kano/internal/remote"
 )
 
 // Settings are the user's choices. The zero value of a field is never a
@@ -26,7 +26,7 @@ type Settings struct {
 	SessionName       string `json:"sessionName"`       // what names an unnamed session: proto.NameFocused, NameLead or NameFolder
 	FocusFollowsMouse bool   `json:"focusFollowsMouse"` // a pane the pointer enters takes the focus
 	ConfirmClose      bool   `json:"confirmClose"`      // before closing a pane a program runs in
-	RestoreSessions   bool   `json:"restoreSessions"`   // after kerod restarts, as after a reboot
+	RestoreSessions   bool   `json:"restoreSessions"`   // after kanod restarts, as after a reboot
 	ResumeAgents      bool   `json:"resumeAgents"`      // as it restores sessions: the agents' own
 	QuitConfirm       bool   `json:"quitConfirm"`       // tell, the first time, that quitting keeps sessions
 
@@ -37,7 +37,7 @@ type Settings struct {
 	Vibrancy   bool   `json:"vibrancy"`   // the window's material under the wash
 
 	// Terminal
-	FontFamily   string  `json:"fontFamily"` // "" the font kero carries; "monospace" the system's
+	FontFamily   string  `json:"fontFamily"` // "" the font kano carries; "monospace" the system's
 	FontSize     float32 `json:"fontSize"`
 	LineHeight   float32 `json:"lineHeight"`
 	FontWeight   int     `json:"fontWeight"`
@@ -47,7 +47,7 @@ type Settings struct {
 	DimUnfocused bool    `json:"dimUnfocusedTerminals"` // the terminals the user is not in fade
 	Cursor       string  `json:"cursor"`                // "block", "bar" or "underline"
 	CursorBlink  bool    `json:"cursorBlink"`
-	LightTheme   string  `json:"lightTheme"` // "kero", or a Ghostty theme's name
+	LightTheme   string  `json:"lightTheme"` // "kano", or a Ghostty theme's name
 	DarkTheme    string  `json:"darkTheme"`
 	OptionAsAlt  bool    `json:"optionAsAlt"`
 	CopyOnSelect bool    `json:"copyOnSelect"`
@@ -68,10 +68,10 @@ type Settings struct {
 	BounceDock    bool `json:"bounceDock"`
 
 	// Agents
-	RemoteControl bool `json:"remoteControl"` // kero focus and kero do drive the app
+	RemoteControl bool `json:"remoteControl"` // kano focus and kano do drive the app
 
 	// Git
-	GitStatus  bool   `json:"gitStatus"`  // each pane's branch and changes, which kerod follows
+	GitStatus  bool   `json:"gitStatus"`  // each pane's branch and changes, which kanod follows
 	DiffLayout string `json:"diffLayout"` // the changes panel's diffs: "auto", "unified" or "split"
 
 	// Browser
@@ -81,27 +81,27 @@ type Settings struct {
 	// Keyboard: accelerators by action, over the defaults; "" unbinds.
 	Shortcuts map[string]string `json:"shortcuts,omitempty"`
 
-	// Hosts are other machines' kerods, which the app shows beside this
+	// Hosts are other machines' kanods, which the app shows beside this
 	// one's and the CLI reaches with -H.
 	Hosts []Host `json:"hosts,omitempty"`
-	// Listen are kerod's network listeners, for clients on other machines
+	// Listen are kanod's network listeners, for clients on other machines
 	// (tailnet://:7373, tailnet-serve://), and ListenAllow who may connect
 	// besides the machine's owner: tailnet logins, tag:name, or *.
 	Listen      []string `json:"listen,omitempty"`
 	ListenAllow []string `json:"listenAllow,omitempty"`
-	// RemoteUpdates lets Kero on another machine that connects update the
-	// app here to its version, and restart kerod into it, as it can a
+	// RemoteUpdates lets Kano on another machine that connects update the
+	// app here to its version, and restart kanod into it, as it can a
 	// server build: off unless the user turns it on here.
 	RemoteUpdates bool `json:"remoteUpdates,omitempty"`
 }
 
-// Host is a machine whose kerod the app shows: its name, and its address
+// Host is a machine whose kanod the app shows: its name, and its address
 // (package remote).
 type Host struct {
 	Name string `json:"name"`
 	Addr string `json:"addr"`
-	// RemoteControl lets the host's programs drive the app, as kero focus
-	// and kero do, which remote-control lets this machine's: off unless the
+	// RemoteControl lets the host's programs drive the app, as kano focus
+	// and kano do, which remote-control lets this machine's: off unless the
 	// user trusts the host with it.
 	RemoteControl bool `json:"remoteControl,omitempty"`
 	// Color marks the host's sessions in the sidebar and its panes: one of
@@ -143,8 +143,8 @@ func Default() Settings {
 		MinContrast:     3,
 		Cursor:          "block",
 		CursorBlink:     true,
-		LightTheme:      "kero",
-		DarkTheme:       "kero",
+		LightTheme:      "kano",
+		DarkTheme:       "kano",
 		Clipboard:       "ask",
 		RightClick:      "menu",
 		Scrollback:      4,
@@ -161,8 +161,8 @@ func Default() Settings {
 }
 
 // Languages are the languages the app is written in, as the catalogs of
-// kero/locales name them.
-var Languages = []string{"en", "zh-Hans"}
+// kano/locales name them.
+var Languages = []string{"en", "pt-BR", "zh-Hans"}
 
 // Backgrounds are the washes the window can show.
 var Backgrounds = []struct{ ID, Name string }{
@@ -176,7 +176,7 @@ var Backgrounds = []struct{ ID, Name string }{
 // Path returns the settings' file, the configuration (ConfigPath).
 func Path() string { return ConfigPath() }
 
-// legacyPath is where kero kept its settings before the configuration
+// legacyPath is where kano kept its settings before the configuration
 // file, as JSON, which the first Load moves into it.
 func legacyPath() string { return filepath.Join(proto.Dir(), "settings.json") }
 
@@ -189,7 +189,7 @@ var (
 
 // Load returns the settings, the defaults where the file says nothing.
 // It reads the file again when it changed, so that a long-running reader,
-// as kerod, sees the app's changes, and the user's.
+// as kanod, sees the app's changes, and the user's.
 func Load() Settings {
 	mu.Lock()
 	defer mu.Unlock()
@@ -212,7 +212,7 @@ func Load() Settings {
 }
 
 // Problems returns what the file got wrong, as of the last Load: keys
-// kero does not know, and values it cannot take, which keep their
+// kano does not know, and values it cannot take, which keep their
 // defaults.
 func Problems() []string {
 	mu.Lock()
@@ -220,7 +220,7 @@ func Problems() []string {
 	return slices.Clone(problems)
 }
 
-// migrate moves the settings of the JSON file kero kept before into the
+// migrate moves the settings of the JSON file kano kept before into the
 // configuration, once; mu is held.
 func migrate() {
 	if _, err := os.Stat(Path()); err == nil {

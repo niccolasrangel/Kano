@@ -12,10 +12,10 @@ import (
 	"github.com/egoist/mygo/ui"
 	"github.com/egoist/mygo/ui/editor"
 
-	"kero/internal/git"
-	"kero/internal/proto"
+	"kano/internal/git"
+	"kano/internal/proto"
 
-	"kero/locales"
+	"kano/locales"
 )
 
 // The side panel stands at the right of a session's panes, a card of its
@@ -145,7 +145,7 @@ func (a *App) sideEdge(c *ui.Context, pal *palette, row float32) {
 func (a *App) sidePanel(c *ui.Context, pal *palette, s *proto.Session, width float32, right bool) {
 	card := ui.Column(c.Key("side")).Width(width).Shrink(0).MinHeight(0).Radius(14).Clip().Background(pal.card).
 		Focusable().Bind(a.paneRef("side-card"))
-	raised(card, pal)
+	cardSurface(card, pal)
 	a.side.focused = card.FocusWithin()
 	card.Children(func() {
 		ui.Row(c.Key("hdr")).Height(headerH).Shrink(0).AlignItems(ui.Center).Padding(0, 10, 0, 16).Gap(8).Children(func() {
@@ -427,7 +427,7 @@ const (
 
 // syncFiles keeps the diffs of a list's files: it asks for the text of
 // each file shown that has none yet, a few at a time, and again of one
-// whose change the list counts anew (Known, so that kerod sends only what
+// whose change the list counts anew (Known, so that kanod sends only what
 // changed), or of every one as the worktree's HEAD moves.
 func (a *App) syncFiles(c *ui.Context, scope string, pane *proto.Pane, files []proto.GitFile) {
 	ch := &a.side.changes
@@ -559,7 +559,7 @@ func (a *App) sectionNote(c *ui.Context, pal *palette, text string) {
 	ui.Text(c, text).FontSize(12.5).TextColor(pal.textMuted).Padding(10, 12).LineHeight(1.4)
 }
 
-// fetchChanges asks kerod for the list of a pane's changes since a base.
+// fetchChanges asks kanod for the list of a pane's changes since a base.
 func (a *App) fetchChanges(scope, stamp, pane, base string) {
 	ch := &a.side.changes
 	ch.busy, ch.since = true, time.Now()
@@ -665,8 +665,8 @@ func (a *App) sideMessage(c *ui.Context, pal *palette, title, detail string) {
 
 // --- a file's diff ---
 
-// fetchFile asks kerod for a file's text in the base and now; known is
-// the hash of the text shown, which kerod then sends again only when it
+// fetchFile asks kanod for a file's text in the base and now; known is
+// the hash of the text shown, which kanod then sends again only when it
 // changed.
 func (a *App) fetchFile(sf *sideFile, known string) {
 	cl := a.hostOf(sf.pane).cl
@@ -857,7 +857,7 @@ func hunkButton(c *ui.Context, key string, svg *ui.SVG, label, tip string, pal *
 }
 
 // writeBack writes a file's diff's new text, which a change reverted
-// changed, to the file, through kerod, which writes it only as the file
+// changed, to the file, through kanod, which writes it only as the file
 // was shown: one changed meanwhile is shown anew instead.
 func (a *App) writeBack(sf *sideFile) {
 	cl := a.hostOf(sf.pane).cl

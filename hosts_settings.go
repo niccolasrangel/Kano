@@ -11,11 +11,11 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
-	"kero/internal/remote"
-	"kero/internal/settings"
-	"kero/internal/tailscale"
+	"kano/internal/remote"
+	"kano/internal/settings"
+	"kano/internal/tailscale"
 
-	"kero/locales"
+	"kano/locales"
 )
 
 // hostDraft is the Hosts page's form, which adds a host, or a host's,
@@ -29,7 +29,7 @@ type hostDraft struct {
 
 // hostsPage is Settings › Hosts: the machines whose sessions the app
 // shows beside this one's, which the configuration's host keys keep, as
-// `kero hosts` does.
+// `kano hosts` does.
 func (a *App) hostsPage(c *ui.Context, pal *palette) {
 	settingsGroup(c, pal, locales.SetHosts(), locales.SetHostsDetail(), func() {
 		if len(a.hosts) == 1 {
@@ -39,7 +39,7 @@ func (a *App) hostsPage(c *ui.Context, pal *palette) {
 			a.hostRow(c, pal, h)
 		}
 	})
-	docLink(c, pal, "hosts-docs", locales.SetHostsDocs(), "https://kero.sh/docs/remote")
+	docLink(c, pal, "hosts-docs", locales.SetHostsDocs(), "https://kano.sh/docs/remote")
 	settingsGroup(c, pal, locales.SetHostAdd(), locales.SetHostAddDetail(), func() {
 		d := &a.ss.host
 		ui.Row(c).Padding(10, 0).Gap(8).AlignItems(ui.Center).Children(func() {
@@ -68,9 +68,9 @@ type tailnetLook struct {
 	copied  time.Time // when the address was copied, for a check mark
 }
 
-// listenGroup turns this machine into a host for Kero elsewhere: kerod's
+// listenGroup turns this machine into a host for Kano elsewhere: kanod's
 // listener on the tailnet, the configuration's tailnet:// listen, which
-// kerod follows as it changes.
+// kanod follows as it changes.
 func (a *App) listenGroup(c *ui.Context, pal *palette) {
 	i := slices.IndexFunc(a.set.Listen, func(l string) bool {
 		spec, err := remote.ParseListen(l)
@@ -126,7 +126,7 @@ func (a *App) listenGroup(c *ui.Context, pal *palette) {
 	})
 }
 
-// listenAddress says where Kero elsewhere finds this machine's listener,
+// listenAddress says where Kano elsewhere finds this machine's listener,
 // asking tailscaled for its name now and then, and the address, once it
 // is known.
 func (a *App) listenAddress(port string) (detail, addr string) {
@@ -292,7 +292,7 @@ func (a *App) hostStatus(h *host) string {
 		return a.hostVersionDetail(h)
 	}
 	i := h.info
-	s := locales.HostConnected(i.Kero, i.OS+"/"+i.Arch, i.Hostname, i.User)
+	s := locales.HostConnected(i.Kano, i.OS+"/"+i.Arch, i.Hostname, i.User)
 	if n := len(a.sessionsOf(h)); n > 0 {
 		s += " · " + locales.HostSessions(n)
 	}

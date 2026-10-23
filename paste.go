@@ -8,15 +8,15 @@ import (
 
 	"github.com/egoist/mygo/transfer"
 
-	"kero/internal/client"
-	"kero/internal/proto"
-	"kero/internal/shell"
+	"kano/internal/client"
+	"kano/internal/proto"
+	"kano/internal/shell"
 
-	"kero/locales"
+	"kano/locales"
 )
 
 // maxUpload bounds what a paste into a remote pane uploads, and maxFile
-// each file of it, as kerod takes them (paste.file).
+// each file of it, as kanod takes them (paste.file).
 const (
 	maxUpload = 64 << 20
 	maxFile   = 32 << 20

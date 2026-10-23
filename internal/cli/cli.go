@@ -1,4 +1,4 @@
-// Package cli is the kero command: sessions driven from a shell or by an
+// Package cli is the kano command: sessions driven from a shell or by an
 // agent, through the daemon the app shows.
 package cli
 
@@ -18,28 +18,28 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"kero/internal/actions"
-	"kero/internal/build"
-	"kero/internal/client"
-	"kero/internal/proto"
-	"kero/internal/service"
-	"kero/internal/settings"
-	"kero/internal/update"
+	"kano/internal/actions"
+	"kano/internal/build"
+	"kano/internal/client"
+	"kano/internal/proto"
+	"kano/internal/service"
+	"kano/internal/settings"
+	"kano/internal/update"
 )
 
-const usage = `kero — terminal sessions that keep running, for you and your agents
+const usage = `kano — terminal sessions that keep running, for you and your agents
 
 Usage:
-  kero                          open the app
-  kero ls [--json]              list sessions and their panes
-  kero new [options] [-- cmd…]  start a session, printing its id
+  kano                          open the app
+  kano ls [--json]              list sessions and their panes
+  kano new [options] [-- cmd…]  start a session, printing its id
       -p, --project <name|id>     project to put it in (default: by directory)
       -n, --name <name>           name it
       -d, --dir <dir>             start it there (default: here)
       -f, --focus                 show it in the app
       -w, --wait                  wait for cmd to end, exit with its status
       -u, --url <url>             a browser showing url, not a shell
-  kero split [target] [options] [-- cmd…]
+  kano split [target] [options] [-- cmd…]
                                 start a pane beside a pane, printing its id
       --right (default), --down, --left, --up
       -r, --ratio <0..1>          the new pane's share (default 0.5)
@@ -47,28 +47,28 @@ Usage:
       -w, --wait                  wait for cmd to end, exit with its status
       -u, --url <url>             a browser showing url, not a shell, as
                                   a dev server's page: localhost:3000
-  kero send <target> <text…>    type text into a pane
+  kano send <target> <text…>    type text into a pane
       -e                          interpret \n \r \t \e \xHH escapes
       --enter                     press Enter after it
-  kero key <target> <key…>      press keys: enter, tab, escape, up, down,
+  kano key <target> <key…>      press keys: enter, tab, escape, up, down,
                                 left, right, backspace, ctrl+c, ctrl+d, …
-  kero prompt <target> <text…>  send text and Enter, wait until the pane
+  kano prompt <target> <text…>  send text and Enter, wait until the pane
                                 stops working, then print its screen
-  kero read [target] [-a] [-n lines]
+  kano read [target] [-a] [-n lines]
                                 print the screen (-a with the scrollback)
-  kero wait [target] [--for idle,waiting,error,exited] [--timeout 10m]
+  kano wait [target] [--for idle,waiting,error,exited] [--timeout 10m]
                                 wait until the pane stops working (or
                                 reaches one of the statuses), print it
       -x, --exit                  instead wait for the command it started
                                   with to end, exit with its status
-  kero status [target] [--json]
-  kero diff [target] [--turn | --branch] [path…]
+  kano status [target] [--json]
+  kano diff [target] [--turn | --branch] [path…]
                                 the changes in the pane's git worktree, as
                                 git diff prints them: since HEAD, untracked
                                 files too; --turn since its agent last
                                 started working; --branch since it left
                                 the default branch
-  kero browser [target] <command> [args…]
+  kano browser [target] <command> [args…]
                                 drive a browser pane's page (needs Remote
                                 Control, in Settings › Agents); the target
                                 is a browser pane, or a session, for its
@@ -85,52 +85,52 @@ Usage:
       eval <js…>                  run JavaScript, print its value
       screenshot [-o file.png]    save a picture of the page, print where
       -t, --timeout <dur>         how long to wait (default 10s)
-  kero rename <session> <name>
-  kero focus <target>           show a session (and pane) in the app
-  kero close <target>           end a session (or, given a pane, the pane)
-  kero restart <target>         start an exited pane's shell again
-  kero notify [target] <message>
+  kano rename <session> <name>
+  kano focus <target>           show a session (and pane) in the app
+  kano close <target>           end a session (or, given a pane, the pane)
+  kano restart <target>         start an exited pane's shell again
+  kano notify [target] <message>
                                 flag the pane as needing you
-  kero report <state> [message] [--kind k] [--progress n] [--app a] [--id i]
+  kano report <state> [message] [--kind k] [--progress n] [--app a] [--id i]
                                 report this program's status (OSC 7501):
                                 idle, working, done, blocked, error, clear
-  kero do <action> [key=value…]  run an action of the app, as its menus do
+  kano do <action> [key=value…]  run an action of the app, as its menus do
                                 (needs Remote Control, in Settings › Agents)
-  kero actions                  list the actions kero do runs
-  kero config path|show|edit|check
+  kano actions                  list the actions kano do runs
+  kano config path|show|edit|check
                                 the configuration file: where it is, every
-                                key with its value (--defaults: as kero
+                                key with its value (--defaults: as kano
                                 comes), open it in $EDITOR, check it
-  kero projects [--json]
-  kero skill setup|status|show|remove
-                                teach coding agents to use kero
-  kero clients [--json]         list who is connected to kerod
-  kero hosts [ls]               the other machines Kero reaches
-  kero hosts add <name> <address> [--remote-control]
+  kano projects [--json]
+  kano skill setup|status|show|remove
+                                teach coding agents to use kano
+  kano clients [--json]         list who is connected to kanod
+  kano hosts [ls]               the other machines Kano reaches
+  kano hosts add <name> <address> [--remote-control]
                                 save one: [user@]host or ssh://… over SSH,
                                 wsl://distro, http(s)://… for a listener
-  kero hosts remove|check <name>
-  kero hosts install <name|address> [--version v]
-                                install Kero there, over SSH
-  kero daemon status|stop|restart
-  kero daemon serve [--listen tailnet://:7373]…
-                                run kerod in the foreground, never idle,
+  kano hosts remove|check <name>
+  kano hosts install <name|address> [--version v]
+                                install Kano there, over SSH
+  kano daemon status|stop|restart
+  kano daemon serve [--listen tailnet://:7373]…
+                                run kanod in the foreground, never idle,
                                 as a service does
-  kero daemon install-service|uninstall-service
-                                run kerod with the machine (systemd, launchd)
-  kero daemon update [version]  update the server build of Kero
+  kano daemon install-service|uninstall-service
+                                run kanod with the machine (systemd, launchd)
+  kano daemon update [version]  update the server build of Kano
 
 Global options:
-  -H, --host <name|address>     act on kerod on another machine: a host of
-                                kero hosts, or an address ($KERO_HOST)
+  -H, --host <name|address>     act on kanod on another machine: a host of
+                                kano hosts, or an address ($KANO_HOST)
 
 A target is a session or a pane: an id, a prefix of it, or a session's
-name; a session stands for its focused pane. Inside kero, $KERO_PANE and
-$KERO_SESSION name the pane and session a command runs in, the default
+name; a session stands for its focused pane. Inside kano, $KANO_PANE and
+$KANO_SESSION name the pane and session a command runs in, the default
 target.
 
 Exit status: 0 ok, 1 failed, 2 bad usage, 3 no such target (or an
-ambiguous one), 4 kerod unreachable.
+ambiguous one), 4 kanod unreachable.
 `
 
 // Commands lists the subcommands, which main sends here.
@@ -151,7 +151,7 @@ var (
 	errUnreachable = errors.New("unreachable")
 )
 
-// exitStatus is a waited-for program's exit status, which kero exits
+// exitStatus is a waited-for program's exit status, which kano exits
 // with.
 type exitStatus int
 
@@ -161,12 +161,12 @@ func (e exitStatus) Error() string { return fmt.Sprintf("exit status %d", int(e)
 func Run(args []string) int {
 	host, env, args, err := splitHost(args)
 	if err == nil && host != "" && len(args) > 0 && localOnly[args[0]] {
-		// $KERO_HOST is for what acts on sessions: the rest is of this
+		// $KANO_HOST is for what acts on sessions: the rest is of this
 		// machine, as an agent's hook in a shell whose profile sets it.
 		if env {
 			host = ""
 		} else {
-			err = usageErr("kero %s is of this machine: run it on the host itself, without -H", args[0])
+			err = usageErr("kano %s is of this machine: run it on the host itself, without -H", args[0])
 		}
 	}
 	if err == nil {
@@ -180,7 +180,7 @@ func Run(args []string) int {
 	if errors.As(err, &es) {
 		return int(es)
 	}
-	fmt.Fprintln(os.Stderr, "kero:", err)
+	fmt.Fprintln(os.Stderr, "kano:", err)
 	switch {
 	case errors.Is(err, errUsage):
 		return 2
@@ -249,7 +249,7 @@ func run(args []string, host string) error {
 		u := usage
 		if build.Server {
 			// No app to open.
-			u = strings.Replace(u, "  kero                          open the app\n", "", 1)
+			u = strings.Replace(u, "  kano                          open the app\n", "", 1)
 		}
 		fmt.Print(u)
 		return nil
@@ -278,7 +278,7 @@ func run(args []string, host string) error {
 	c, done, err := connect(host)
 	if err != nil {
 		if errors.Is(err, client.ErrVersion) {
-			return fmt.Errorf("%w: the running kerod is of another version: run `kero daemon restart` (it restarts sessions)", errUnreachable)
+			return fmt.Errorf("%w: the running kanod is of another version: run `kano daemon restart` (it restarts sessions)", errUnreachable)
 		}
 		if errors.Is(err, errUnreachable) || errors.Is(err, errNotFound) {
 			return err
@@ -337,13 +337,13 @@ func run(args []string, host string) error {
 		}
 		command := append(f.pos, f.rest...)
 		if f.set["wait"] && len(command) == 0 {
-			return usageErr("kero new --wait needs a command: kero new --wait -- cmd…")
+			return usageErr("kano new --wait needs a command: kano new --wait -- cmd…")
 		}
 		if f.vals["url"] != "" && (len(command) > 0 || f.set["wait"]) {
-			return usageErr("kero new --url shows a page, and runs no command")
+			return usageErr("kano new --url shows a page, and runs no command")
 		}
 		dir := f.vals["dir"]
-		// Here, unless the session is of another machine, whose kerod
+		// Here, unless the session is of another machine, whose kanod
 		// then starts it in the project's directory, or the home.
 		if dir == "" && f.vals["project"] == "" && host == "" {
 			dir, _ = os.Getwd()
@@ -351,7 +351,7 @@ func run(args []string, host string) error {
 		var s proto.Session
 		if err := c.Call("create", proto.CreateParams{
 			Project: f.vals["project"], Name: f.vals["name"], Dir: dir, Command: command, URL: f.vals["url"],
-			After: os.Getenv("KERO_SESSION"),
+			After: os.Getenv("KANO_SESSION"),
 		}, &s); err != nil {
 			return err
 		}
@@ -389,10 +389,10 @@ func run(args []string, host string) error {
 		ratio, _ := strconv.ParseFloat(f.vals["ratio"], 64)
 		command := append(f.pos[min(1, len(f.pos)):], f.rest...)
 		if f.set["wait"] && len(command) == 0 {
-			return usageErr("kero split --wait needs a command: kero split --wait -- cmd…")
+			return usageErr("kano split --wait needs a command: kano split --wait -- cmd…")
 		}
 		if f.vals["url"] != "" && (len(command) > 0 || f.set["wait"]) {
-			return usageErr("kero split --url shows a page, and runs no command")
+			return usageErr("kano split --url shows a page, and runs no command")
 		}
 		var s proto.Session
 		if err := c.Call("split", proto.CreateParams{Split: t.ref(), Direction: dir, Ratio: ratio,
@@ -421,7 +421,7 @@ func run(args []string, host string) error {
 			return err
 		}
 		if len(f.pos) < 1 {
-			return usageErr("kero %s <target> <text…>", cmd)
+			return usageErr("kano %s <target> <text…>", cmd)
 		}
 		t, err := find(st, f.pos[0])
 		if err != nil {
@@ -471,7 +471,7 @@ func run(args []string, host string) error {
 
 	case "key":
 		if len(args) < 2 {
-			return usageErr("kero key <target> <key…>")
+			return usageErr("kano key <target> <key…>")
 		}
 		t, err := find(st, args[0])
 		if err != nil {
@@ -515,7 +515,7 @@ func run(args []string, host string) error {
 		}
 		if f.set["exit"] {
 			if f.vals["for"] != "" {
-				return usageErr("kero wait: --exit or --for, not both")
+				return usageErr("kano wait: --exit or --for, not both")
 			}
 			return waitExit(c, t.ref(), f.vals["timeout"])
 		}
@@ -575,7 +575,7 @@ func run(args []string, host string) error {
 			return err
 		}
 		if f.set["turn"] && f.set["branch"] {
-			return usageErr("kero diff: --turn or --branch, not both")
+			return usageErr("kano diff: --turn or --branch, not both")
 		}
 		// A target first, unless it names none: then every argument is a
 		// path, of the pane the command runs in.
@@ -622,17 +622,17 @@ func run(args []string, host string) error {
 
 	case "rename":
 		if len(args) < 2 {
-			return usageErr("kero rename <session> <name>")
+			return usageErr("kano rename <session> <name>")
 		}
 		t, err := find(st, args[0])
 		if err != nil {
 			return err
 		}
-		return c.Call("rename", proto.RenameParams{ID: t.s.ID, Name: strings.Join(args[1:], " "), By: os.Getenv("KERO_PANE")}, nil)
+		return c.Call("rename", proto.RenameParams{ID: t.s.ID, Name: strings.Join(args[1:], " "), By: os.Getenv("KANO_PANE")}, nil)
 
 	case "focus":
 		if len(args) < 1 {
-			return usageErr("kero focus <target>")
+			return usageErr("kano focus <target>")
 		}
 		t, err := find(st, args[0])
 		if err != nil {
@@ -649,7 +649,7 @@ func run(args []string, host string) error {
 
 	case "close", "kill", "restart":
 		if len(args) < 1 {
-			return usageErr("kero %s <target>", cmd)
+			return usageErr("kano %s <target>", cmd)
 		}
 		t, err := find(st, args[0])
 		if err != nil {
@@ -665,11 +665,11 @@ func run(args []string, host string) error {
 
 	case "do":
 		if len(args) < 1 {
-			return usageErr("kero do <action> [key=value…] (see kero actions)")
+			return usageErr("kano do <action> [key=value…] (see kano actions)")
 		}
 		a, ok := actions.Find(args[0])
 		if !ok || !a.Remote {
-			return fmt.Errorf("%w: no action %q (see kero actions)", errNotFound, args[0])
+			return fmt.Errorf("%w: no action %q (see kano actions)", errNotFound, args[0])
 		}
 		kv := map[string]string{}
 		for _, arg := range args[1:] {
@@ -701,7 +701,7 @@ func run(args []string, host string) error {
 			ref = current()
 		}
 		if ref == "" {
-			return usageErr("which pane? run it in Kero, or give --session")
+			return usageErr("which pane? run it in Kano, or give --session")
 		}
 		t, err := find(st, ref)
 		if err != nil {
@@ -709,7 +709,7 @@ func run(args []string, host string) error {
 		}
 		return c.Call("notify", proto.NotifyParams{ID: t.ref(), Title: f.vals["title"], Body: strings.Join(append(f.pos, f.rest...), " ")}, nil)
 	}
-	return usageErr("unknown command %q (see kero help)", cmd)
+	return usageErr("unknown command %q (see kano help)", cmd)
 }
 
 // target is what a command acts on: a session, or one of its panes.
@@ -762,7 +762,7 @@ func find(st proto.State, ref string) (target, error) {
 	return target{}, fmt.Errorf("%w: %q names several: %s", errNotFound, ref, strings.Join(ids, ", "))
 }
 
-// diffPane is the pane whose worktree kero diff shows: the target's, or
+// diffPane is the pane whose worktree kano diff shows: the target's, or
 // for a turn, the pane of its session whose agent started one, the
 // target first.
 func diffPane(t target, turn bool) *proto.Pane {
@@ -814,16 +814,16 @@ func repoPath(root, p string, remote bool) (string, error) {
 	return filepath.ToSlash(rel), nil
 }
 
-// current is the pane a command runs in, inside kero.
+// current is the pane a command runs in, inside kano.
 func current() string {
 	// A pane of this machine names nothing on another.
 	if onHost != "" {
 		return ""
 	}
-	if p := os.Getenv("KERO_PANE"); p != "" {
+	if p := os.Getenv("KANO_PANE"); p != "" {
 		return p
 	}
-	return os.Getenv("KERO_SESSION")
+	return os.Getenv("KANO_SESSION")
 }
 
 func findOrCurrent(st proto.State, pos []string) (target, error) {
@@ -833,7 +833,7 @@ func findOrCurrent(st proto.State, pos []string) (target, error) {
 	if ref := current(); ref != "" {
 		return find(st, ref)
 	}
-	return target{}, usageErr("which session? (outside kero, name one)")
+	return target{}, usageErr("which session? (outside kano, name one)")
 }
 
 func daemonCmd(args []string, host string) error {
@@ -849,7 +849,7 @@ func daemonCmd(args []string, host string) error {
 		svc := service.Get()
 		c, err := client.Connect(true)
 		if err != nil {
-			fmt.Println("kerod is not running")
+			fmt.Println("kanod is not running")
 		} else {
 			defer c.Close()
 			var st proto.State
@@ -858,7 +858,7 @@ func daemonCmd(args []string, host string) error {
 			for _, s := range st.Sessions {
 				panes += len(s.Panes)
 			}
-			fmt.Printf("kerod %d running (Kero %s, pid %d) for %s: %d sessions, %d panes\n", c.Welcome.Version, orDash(c.Welcome.App), c.Welcome.PID,
+			fmt.Printf("kanod %d running (Kano %s, pid %d) for %s: %d sessions, %d panes\n", c.Welcome.Version, orDash(c.Welcome.App), c.Welcome.PID,
 				time.Since(time.UnixMilli(c.Welcome.Started)).Round(time.Second), len(st.Sessions), panes)
 		}
 		fmt.Println("socket:", proto.SocketPath())
@@ -874,7 +874,7 @@ func daemonCmd(args []string, host string) error {
 		return nil
 	case "stop", "restart":
 		// The service's manager stops and restarts it, but Task
-		// Scheduler, whose kerod stops as any, and starts with the task.
+		// Scheduler, whose kanod stops as any, and starts with the task.
 		if service.Installed() {
 			var err error
 			if sub == "stop" {
@@ -884,7 +884,7 @@ func daemonCmd(args []string, host string) error {
 			}
 			if !errors.Is(err, service.ErrUnsupported) {
 				if err == nil && sub == "restart" {
-					fmt.Println("kerod restarted")
+					fmt.Println("kanod restarted")
 				}
 				return err
 			}
@@ -898,7 +898,7 @@ func daemonCmd(args []string, host string) error {
 				return err
 			}
 			c.Close()
-			fmt.Println("kerod restarted")
+			fmt.Println("kanod restarted")
 		}
 		return nil
 	case "serve":
@@ -916,27 +916,27 @@ func daemonCmd(args []string, host string) error {
 			exe = real
 		}
 		// A user's services stop as they log out, unless they linger: a
-		// service would then end kerod as an SSH bridge does, which a kerod
+		// service would then end kanod as an SSH bridge does, which a kanod
 		// of its own outlives. --no-linger takes it as it is.
 		if !f.set["no-linger"] {
 			if err := service.EnableLinger(); err != nil {
-				return fmt.Errorf("%v; without it kerod would stop as you log out (kero daemon install-service --no-linger installs it all the same)", err)
+				return fmt.Errorf("%v; without it kanod would stop as you log out (kano daemon install-service --no-linger installs it all the same)", err)
 			}
 		}
 		if err := service.Install(exe, StopDaemon); err != nil {
 			return err
 		}
-		fmt.Printf("kerod runs as a service: %s\n", service.Get().File)
+		fmt.Printf("kanod runs as a service: %s\n", service.Get().File)
 		return nil
 	case "uninstall-service":
 		if err := service.Uninstall(); err != nil {
 			return err
 		}
-		fmt.Println("kerod no longer runs as a service: the app, or a bridge, starts it")
+		fmt.Println("kanod no longer runs as a service: the app, or a bridge, starts it")
 		return nil
 	case "update":
 		if !build.Server {
-			return errors.New("this is Kero's desktop app, which updates itself: kero daemon update is of the server build")
+			return errors.New("this is Kano's desktop app, which updates itself: kano daemon update is of the server build")
 		}
 		version := ""
 		if len(args) > 1 {
@@ -952,21 +952,21 @@ func daemonCmd(args []string, host string) error {
 			version = v
 		}
 		if strings.TrimPrefix(version, "v") == build.Version() {
-			fmt.Printf("Kero %s is installed\n", build.Version())
+			fmt.Printf("Kano %s is installed\n", build.Version())
 			return nil
 		}
 		// A version named is the user's to go back to.
 		if err := update.Install(ctx, version, update.InstallDir(), build.Version(), len(args) > 1); err != nil {
 			return err
 		}
-		fmt.Printf("installed Kero %s: kerod runs it as it restarts (kero daemon restart), its sessions with it\n", strings.TrimPrefix(version, "v"))
+		fmt.Printf("installed Kano %s: kanod runs it as it restarts (kano daemon restart), its sessions with it\n", strings.TrimPrefix(version, "v"))
 		return nil
 	}
 	return usageErr("unknown daemon command %q", sub)
 }
 
-// remoteDaemonCmd is kero -H <host> daemon …: how kerod on the host is,
-// and restarting it, or updating Kero there, as the app does.
+// remoteDaemonCmd is kano -H <host> daemon …: how kanod on the host is,
+// and restarting it, or updating Kano there, as the app does.
 func remoteDaemonCmd(sub string, args []string, host string) error {
 	rc, err := dialHost(host)
 	if err != nil {
@@ -978,23 +978,23 @@ func remoteDaemonCmd(sub string, args []string, host string) error {
 	switch sub {
 	case "status":
 		h := rc.Welcome.Host
-		fmt.Printf("%s: %s (%s/%s), Kero %s (protocol %d)\n", host, h.Hostname, h.OS, h.Arch, orDash(h.Kero), h.Version)
+		fmt.Printf("%s: %s (%s/%s), Kano %s (protocol %d)\n", host, h.Hostname, h.OS, h.Arch, orDash(h.Kano), h.Version)
 		c, err := client.ConnectVia(rc)
 		if err != nil {
-			fmt.Println("kerod:", err)
+			fmt.Println("kanod:", err)
 			return nil
 		}
 		defer c.Close()
 		var st proto.State
 		c.Call("state", nil, &st)
-		fmt.Printf("kerod %d running (Kero %s, pid %d) for %s: %d sessions\n", c.Welcome.Version, orDash(c.Welcome.App), c.Welcome.PID,
+		fmt.Printf("kanod %d running (Kano %s, pid %d) for %s: %d sessions\n", c.Welcome.Version, orDash(c.Welcome.App), c.Welcome.PID,
 			time.Since(time.UnixMilli(c.Welcome.Started)).Round(time.Second), len(st.Sessions))
 		return nil
 	case "restart":
 		if err := rc.Host(ctx, proto.HostRequest{Kind: proto.KindRestart}); err != nil {
 			return err
 		}
-		fmt.Printf("kerod on %s restarted\n", host)
+		fmt.Printf("kanod on %s restarted\n", host)
 		return nil
 	case "update":
 		version := releasedVersion()
@@ -1008,14 +1008,14 @@ func remoteDaemonCmd(sub string, args []string, host string) error {
 			}
 			version = v
 		}
-		fmt.Printf("updating Kero on %s to %s…\n", host, version)
+		fmt.Printf("updating Kano on %s to %s…\n", host, version)
 		if err := rc.Host(ctx, proto.HostRequest{Kind: proto.KindUpdate, App: version}); err != nil {
 			return err
 		}
-		fmt.Printf("installed: kerod on %s runs it as it restarts (kero -H %s daemon restart), its sessions with it\n", host, host)
+		fmt.Printf("installed: kanod on %s runs it as it restarts (kano -H %s daemon restart), its sessions with it\n", host, host)
 		return nil
 	}
-	return usageErr("kero -H <host> daemon status|restart|update [version]")
+	return usageErr("kano -H <host> daemon status|restart|update [version]")
 }
 
 // StopDaemon stops the running daemon, which saves its sessions to start
@@ -1038,12 +1038,12 @@ func StopDaemon() error {
 		}
 		time.Sleep(30 * time.Millisecond)
 	}
-	return errors.New("kerod did not stop")
+	return errors.New("kanod did not stop")
 }
 
 func listSessions(st proto.State) {
 	if len(st.Sessions) == 0 {
-		fmt.Println("no sessions (start one with kero new)")
+		fmt.Println("no sessions (start one with kano new)")
 		return
 	}
 	names := map[string]string{}
@@ -1121,7 +1121,7 @@ func printJSON(v any) error {
 	return enc.Encode(v)
 }
 
-// keys are the names kero key takes, as the bytes a terminal sends.
+// keys are the names kano key takes, as the bytes a terminal sends.
 var keys = map[string]string{
 	"enter": "\r", "return": "\r", "tab": "\t", "escape": "\x1b", "esc": "\x1b", "space": " ",
 	"backspace": "\x7f", "delete": "\x1b[3~", "up": "\x1b[A", "down": "\x1b[B", "right": "\x1b[C",
@@ -1178,7 +1178,7 @@ func waitExit(c *client.Client, pane, timeout string) error {
 }
 
 // report writes an OSC 7501 report of the program's status to the
-// terminal, as a script reports what it does: kero shows it, and so do
+// terminal, as a script reports what it does: kano shows it, and so do
 // other terminals that read the protocol.
 func report(args []string) error {
 	f, err := parse(args, map[string]string{"kind": "kind", "progress": "progress", "app": "app", "id": "id", "title": "title"}, nil)
@@ -1186,7 +1186,7 @@ func report(args []string) error {
 		return err
 	}
 	if len(f.pos) < 1 {
-		return usageErr("kero report <idle|working|done|blocked|error|clear> [message]")
+		return usageErr("kano report <idle|working|done|blocked|error|clear> [message]")
 	}
 	state := f.pos[0]
 	if !slices.Contains([]string{"idle", "working", "done", "blocked", "error", "clear"}, state) {

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
 // session is a row of the sidebar: a task's panes, in a layout. d.mu
@@ -390,6 +390,16 @@ func (d *Daemon) removePane(id string) error {
 
 // removeSession closes a session and its panes.
 func (d *Daemon) removeSession(ref string) error {
+	return d.removeSessionWith(ref, false)
+}
+
+// killSession ends a session and its panes, and the programs they run,
+// rather than hanging them up as removeSession does.
+func (d *Daemon) killSession(ref string) error {
+	return d.removeSessionWith(ref, true)
+}
+
+func (d *Daemon) removeSessionWith(ref string, force bool) error {
 	d.mu.Lock()
 	s := d.findSessionLocked(ref)
 	if s == nil {
@@ -403,11 +413,19 @@ func (d *Daemon) removeSession(ref string) error {
 	}
 	d.mu.Unlock()
 	for _, p := range panes {
-		p.close()
+		if force {
+			p.kill()
+		} else {
+			p.close()
+		}
 		os.Remove(d.historyPath(p.info.ID))
 	}
 	d.changed()
-	d.log.Printf("session %s closed", s.id)
+	if force {
+		d.log.Printf("session %s killed", s.id)
+	} else {
+		d.log.Printf("session %s closed", s.id)
+	}
 	return nil
 }
 

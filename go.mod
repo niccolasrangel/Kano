@@ -1,4 +1,4 @@
-module kero
+module kano
 
 go 1.27.1
 

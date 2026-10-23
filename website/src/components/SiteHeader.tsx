@@ -4,7 +4,7 @@ import { GitHubIcon, MenuIcon, XIcon } from './Icons';
 import Search from './Search';
 import { delocalize, localeName, localize, t, type Locale } from '../lib/i18n';
 
-export const GITHUB_URL = 'https://github.com/egoist/kero';
+export const GITHUB_URL = 'https://github.com/YOUR_GITHUB_USERNAME/kano';
 
 export default function SiteHeader(props: { path: string; locale: Locale }) {
   const s = () => t(props.locale);
@@ -55,7 +55,7 @@ export default function SiteHeader(props: { path: string; locale: Locale }) {
       <div class="wrapper site-header__inner">
         <Link href={to('/')} class="logo" aria-label={s().home}>
           <img src="/icon.png" alt="" width={28} height={28} />
-          <span>Kero.</span>
+          <span>Kano.</span>
         </Link>
         <nav class="site-nav">{links()}</nav>
         <div class="site-header__end">

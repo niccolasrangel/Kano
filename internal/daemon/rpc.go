@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"kero/internal/proto"
-	"kero/internal/remote"
+	"kano/internal/proto"
+	"kano/internal/remote"
 )
 
 // call runs a control method. Methods taking a pane take a session too,
@@ -56,6 +56,13 @@ func (d *Daemon) call(c *controlConn, method string, raw json.RawMessage) (any, 
 			return nil, err
 		}
 		return true, d.removeSession(p.ID)
+
+	case "kill":
+		var p proto.IDParams
+		if err := decode(&p); err != nil {
+			return nil, err
+		}
+		return true, d.killSession(p.ID)
 
 	case "pane.close":
 		var p proto.IDParams
@@ -281,7 +288,7 @@ func (d *Daemon) call(c *controlConn, method string, raw json.RawMessage) (any, 
 			return nil, fmt.Errorf("no session %q", p.Session)
 		}
 		// The state goes first: the subscribers hear of a session just
-		// made, as by kero new --focus, only once a burst of changes
+		// made, as by kano new --focus, only once a burst of changes
 		// settles (broadcastLoop), and the app shows no session it does
 		// not know of.
 		st := d.state()
@@ -513,13 +520,13 @@ func (d *Daemon) call(c *controlConn, method string, raw json.RawMessage) (any, 
 	return nil, fmt.Errorf("unknown method %q", method)
 }
 
-// browseGrace is how long kerod waits for the app's answer to a browser
+// browseGrace is how long kanod waits for the app's answer to a browser
 // call past the call's own timeout: what the page does may take a while,
 // and the app waits on the page.
 const browseGrace = 30 * time.Second
 
 // browse has the app do something on a browser pane's page, which lives
-// in the app, not in kerod, and waits for its answer. Every subscriber
+// in the app, not in kanod, and waits for its answer. Every subscriber
 // is asked: one that shows the pane answers with the page's result, the
 // others why they can't; the first result wins, else the first refusal.
 func (d *Daemon) browse(c *controlConn, s *pane, p proto.BrowserParams) (any, error) {
@@ -571,7 +578,7 @@ func (d *Daemon) browse(c *controlConn, s *pane, p proto.BrowserParams) (any, er
 		case <-c.done:
 			return nil, errors.New("canceled")
 		case <-d.quit:
-			return nil, errors.New("kerod exited")
+			return nil, errors.New("kanod exited")
 		}
 	}
 	return nil, refused
@@ -635,7 +642,7 @@ func (d *Daemon) wait(c *controlConn, s *pane, p proto.WaitParams) (any, error) 
 		case <-c.done:
 			return nil, errors.New("canceled")
 		case <-d.quit:
-			return nil, errors.New("kerod exited")
+			return nil, errors.New("kanod exited")
 		}
 	}
 }

@@ -5,7 +5,7 @@ description: 在窗格旁查看会话的 git 分支，以及它的智能体逐�
 
 # 改动
 
-当会话在 git 仓库中工作时，Kero 会显示它的分支和改动，让你在窗格旁审阅智能体的工作。
+当会话在 git 仓库中工作时，Kano 会显示它的分支和改动，让你在窗格旁审阅智能体的工作。
 
 ## 分支一览
 
@@ -17,7 +17,7 @@ description: 在窗格旁查看会话的 git 分支，以及它的智能体逐�
 
 点击窗格的分支，或按 <kbd>⌥</kbd> <kbd>⌘</kbd> <kbd>G</kbd>，即可在会话右侧打开改动面板。它列出改动过的文件，以及每个文件增加和删除了多少，比较基准可以是以下之一：
 
-- **上一轮**：会话中的智能体上一次开始工作的位置，这样你只会看到它最近一轮做了什么，而不包括之前的改动。Kero 会在智能体开始时为 worktree 拍一个快照，不会动你的暂存区和文件。
+- **上一轮**：会话中的智能体上一次开始工作的位置，这样你只会看到它最近一轮做了什么，而不包括之前的改动。Kano 会在智能体开始时为 worktree 拍一个快照，不会动你的暂存区和文件。
 - **未提交**：上一次提交，包括未跟踪的文件。
 - **分支**：当前分支从仓库默认分支分出的位置，与拉取请求中看到的一致。
 
@@ -36,17 +36,17 @@ description: 在窗格旁查看会话的 git 分支，以及它的智能体逐�
 
 ## 在命令行中查看
 
-`kero diff` 以 `git diff` 的格式打印窗格的改动，包括未跟踪的文件：
+`kano diff` 以 `git diff` 的格式打印窗格的改动，包括未跟踪的文件：
 
 ```sh
-kero diff                       # 此窗格未提交的改动
-kero diff --turn                # 它的智能体在上一轮中改了什么
-kero diff review --branch       # review 会话自默认分支以来的改动
-kero diff src/auth              # 只看这些路径
+kano diff                       # 此窗格未提交的改动
+kano diff --turn                # 它的智能体在上一轮中改了什么
+kano diff review --branch       # review 会话自默认分支以来的改动
+kano diff src/auth              # 只看这些路径
 ```
 
-`kero status --json` 和 `kero ls --json` 会在 `git` 字段中包含每个窗格的分支和改动。
+`kano status --json` 和 `kano ls --json` 会在 `git` 字段中包含每个窗格的分支和改动。
 
 ## 关闭此功能
 
-设置 `git-status = false`，或在设置中关闭 **显示 Git 状态**，Kero 就不会再在你的仓库中运行 git。
+设置 `git-status = false`，或在设置中关闭 **显示 Git 状态**，Kano 就不会再在你的仓库中运行 git。

@@ -5,7 +5,7 @@ description: See a session's git branch and what its agent changed, file by file
 
 # Changes
 
-When a session works in a git repository, Kero shows its branch and what changed, and lets you review an agent's work beside its panes.
+When a session works in a git repository, Kano shows its branch and what changed, and lets you review an agent's work beside its panes.
 
 ## Branches at a glance
 
@@ -17,7 +17,7 @@ In the sidebar, a session on a branch other than the repository's default one, s
 
 Click a pane's branch, or press <kbd>⌥</kbd> <kbd>⌘</kbd> <kbd>G</kbd>, to open the changes panel at the right of the session. It lists the files that changed, with what each adds and removes, since one of:
 
-- **Last Turn**: where the session's agent last started working, so you see what it did in its latest turn, and nothing that changed before it. Kero takes a snapshot of the worktree as the agent starts, without touching your index or files.
+- **Last Turn**: where the session's agent last started working, so you see what it did in its latest turn, and nothing that changed before it. Kano takes a snapshot of the worktree as the agent starts, without touching your index or files.
 - **Uncommitted**: the last commit, untracked files included.
 - **Branch**: where the branch left the repository's default branch, as a pull request would show it.
 
@@ -36,17 +36,17 @@ Revert works only while no agent in the session is working, so it never races an
 
 ## From the command line
 
-`kero diff` prints a pane's changes as `git diff` does, untracked files included:
+`kano diff` prints a pane's changes as `git diff` does, untracked files included:
 
 ```sh
-kero diff                       # this pane's uncommitted changes
-kero diff --turn                # what its agent changed in its last turn
-kero diff review --branch       # the review session's changes since the default branch
-kero diff src/auth              # just these paths
+kano diff                       # this pane's uncommitted changes
+kano diff --turn                # what its agent changed in its last turn
+kano diff review --branch       # the review session's changes since the default branch
+kano diff src/auth              # just these paths
 ```
 
-`kero status --json` and `kero ls --json` include each pane's branch and changes as `git`.
+`kano status --json` and `kano ls --json` include each pane's branch and changes as `git`.
 
 ## Turning it off
 
-Set `git-status = false`, or turn off **Show git status** in Settings, to stop Kero running git in your repositories.
+Set `git-status = false`, or turn off **Show git status** in Settings, to stop Kano running git in your repositories.

@@ -1,24 +1,24 @@
 ---
 title: 配置
-description: Kero 的配置文件、配置项及其默认值。
+description: Kano 的配置文件、配置项及其默认值。
 ---
 
 # 配置
 
-Kero 把所有设置放在一个纯文本文件里。设置窗口（<kbd>⌘</kbd> <kbd>,</kbd>）会替你修改它，并保留你的注释和顺序；你手动编辑后，Kero 也会自动重新加载。
+Kano 把所有设置放在一个纯文本文件里。设置窗口（<kbd>⌘</kbd> <kbd>,</kbd>）会替你修改它，并保留你的注释和顺序；你手动编辑后，Kano 也会自动重新加载。
 
 ## 配置文件
 
-Kero 按以下优先顺序读取：
+Kano 按以下优先顺序读取：
 
-1. `$KERO_CONFIG`
-2. `$XDG_CONFIG_HOME/kero/config`
-3. `~/.config/kero/config`
+1. `$KANO_CONFIG`
+2. `$XDG_CONFIG_HOME/kano/config`
+3. `~/.config/kano/config`
 
 它采用 Ghostty 的语法：每行一个 `key = value`，`#` 开头为注释，列表类的配置项写成多行重复。凡是含义与 Ghostty 相同的配置项，都沿用 Ghostty 的名字。
 
 ```ini
-# ~/.config/kero/config
+# ~/.config/kano/config
 font-size = 14
 theme = light:GitHub Light Default,dark:Catppuccin Mocha
 cursor-style = bar
@@ -32,9 +32,9 @@ keybind = cmd+shift+d=pane.split.down
 文件里只需写你要改的项，其余都保持默认。
 
 ```sh
-kero config edit              # 在 $EDITOR 中打开
-kero config show              # 列出所有配置项及其当前值
-kero config check             # 报告未知的配置项和无效的值
+kano config edit              # 在 $EDITOR 中打开
+kano config show              # 列出所有配置项及其当前值
+kano config check             # 报告未知的配置项和无效的值
 ```
 
 ## 通用
@@ -45,7 +45,7 @@ kero config check             # 报告未知的配置项和无效的值
 | `session-name`          | `focused` | 未手动命名的会话如何取名：`focused`、`lead` 或 `folder`（[详情](./sessions.md#how-an-unnamed-session-is-named)） |
 | `focus-follows-mouse`   | `false`   | 指针移入哪个窗格，就聚焦哪个窗格                              |
 | `confirm-close`         | `true`    | 关闭仍有程序在运行的窗格前先确认                              |
-| `restore-sessions`      | `true`    | kerod 重启后（例如开机后）重新启动之前的会话                   |
+| `restore-sessions`      | `true`    | kanod 重启后（例如开机后）重新启动之前的会话                   |
 | `resume-agents`         | `true`    | 会话重新启动时，恢复每个窗格中智能体的对话                    |
 
 ## 外观
@@ -53,7 +53,7 @@ kero config check             # 报告未知的配置项和无效的值
 | 配置项               | 默认值   | 说明                                                            |
 | -------------------- | -------- | --------------------------------------------------------------- |
 | `window-theme`       | `system` | 应用外观：`system`、`light` 或 `dark`                            |
-| `language`           | `system` | 应用语言：`system`、`en` 或 `zh-Hans`                            |
+| `language`           | `system` | 应用语言：`system`、`en`、`pt-BR` 或 `zh-Hans`                   |
 | `background`         | `petal`  | 窗口底色：`petal`、`mist`、`meadow`、`dusk` 或 `plain`           |
 | `window-translucent` | `true`   | 让桌面透过窗口显示出来                                          |
 
@@ -61,8 +61,8 @@ kero config check             # 报告未知的配置项和无效的值
 
 | 配置项                | 默认值  | 说明                                                                     |
 | --------------------- | ------- | ------------------------------------------------------------------------ |
-| `theme`               | `kero`  | 终端配色：`kero`、任意 Ghostty 主题，或 `light:<theme>,dark:<theme>`      |
-| `font-family`         |         | 留空则使用 Kero 自带的 JetBrains Mono Nerd Font；设为 `monospace` 则使用系统等宽字体 |
+| `theme`               | `kano`  | 终端配色：`kano`、任意 Ghostty 主题，或 `light:<theme>,dark:<theme>`      |
+| `font-family`         |         | 留空则使用 Kano 自带的 JetBrains Mono Nerd Font；设为 `monospace` 则使用系统等宽字体 |
 | `font-size`           | `13`    | 单位为磅                                                                 |
 | `font-weight`         | `400`   | `100` 到 `900`                                                           |
 | `line-height`         | `1.22`  | 字体默认行高的倍数                                                       |
@@ -100,18 +100,18 @@ kero config check             # 报告未知的配置项和无效的值
 
 | 配置项           | 默认值  | 说明                                                |
 | ---------------- | ------- | --------------------------------------------------- |
-| `remote-control` | `true`  | 允许 `kero do` 和 `kero focus` 操控应用             |
+| `remote-control` | `true`  | 允许 `kano do` 和 `kano focus` 操控应用             |
 
 ## 主机
 
-应用会显示这些机器上的会话，`kero -H` 也能连到它们。参见[远程主机](./remote.md)。
+应用会显示这些机器上的会话，`kano -H` 也能连到它们。参见[远程主机](./remote.md)。
 
 | 配置项         | 默认值  | 说明 |
 | -------------- | ------- | ---- |
-| `host`         |         | 一台主机，写作 `name=address`：通过 SSH 连接时用 `me@devbox` 或 `ssh://…`，WSL 用 `wsl://distro`，kerod 的 tailnet 监听地址用 `http(s)://…`。在后面加上 ` remote-control` 可允许它的程序操控应用，加上 ` color=teal`（red、orange、amber、green、teal、blue、purple 或 pink）可为它的会话标色。每台主机写一行 |
-| `listen`       |         | 允许其他机器上的 Kero 连接本机：`tailnet://:7373` 监听本机的 Tailscale 地址，`tailnet-serve://` 使用 Tailscale Serve。每个地址写一行 |
+| `host`         |         | 一台主机，写作 `name=address`：通过 SSH 连接时用 `me@devbox` 或 `ssh://…`，WSL 用 `wsl://distro`，kanod 的 tailnet 监听地址用 `http(s)://…`。在后面加上 ` remote-control` 可允许它的程序操控应用，加上 ` color=teal`（red、orange、amber、green、teal、blue、purple 或 pink）可为它的会话标色。每台主机写一行 |
+| `listen`       |         | 允许其他机器上的 Kano 连接本机：`tailnet://:7373` 监听本机的 Tailscale 地址，`tailnet-serve://` 使用 Tailscale Serve。每个地址写一行 |
 | `listen-allow` |         | 除本机所有者外还允许谁连接：某个 tailnet 登录账号、`tag:name`，或用 `*` 允许 tailnet 上的所有人。每项写一行 |
-| `remote-updates` | `false` | 允许你其他机器上的 Kero 把这里的 Kero 应用更新到它的版本，应用会随之重新启动 |
+| `remote-updates` | `false` | 允许你其他机器上的 Kano 把这里的 Kano 应用更新到它的版本，应用会随之重新启动 |
 
 ## Git
 
@@ -129,7 +129,7 @@ kero config check             # 报告未知的配置项和无效的值
 | `browser-block-ads`   | `true`                     | 在浏览器窗格中[拦截广告和跟踪器](./panes.md#blocking-ads)                            |
 | `browser-filter-list` | `easylist`、`easyprivacy`  | 用于拦截的过滤列表。每个列表写一行；留空则不使用任何列表                            |
 
-`browser-filter-list` 可以填 Kero 内置列表的名称，也可以填任意 Adblock Plus 语法列表的 `https://` URL：
+`browser-filter-list` 可以填 Kano 内置列表的名称，也可以填任意 Adblock Plus 语法列表的 `https://` URL：
 
 | 名称               | 列表                                                                |
 | ------------------ | ------------------------------------------------------------------- |
@@ -160,4 +160,4 @@ keybind = cmd+k=palette.open
 keybind = cmd+b=unbind
 ```
 
-运行 `kero actions` 查看所有操作 id，默认快捷键见[键盘快捷键](./shortcuts.md)。
+运行 `kano actions` 查看所有操作 id，默认快捷键见[键盘快捷键](./shortcuts.md)。

@@ -7,7 +7,7 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
-	"kero/locales"
+	"kano/locales"
 )
 
 // fileManager is the system's file manager, as buttons that show a file
@@ -41,9 +41,9 @@ func openTextFile(path string) {
 	}
 }
 
-// ownControls tells that Kero draws the window controls itself: on
+// ownControls tells that Kano draws the window controls itself: on
 // Windows and Linux the top-right card's header holds minimize, maximize
-// and close, beside Kero's own buttons, where the system's, at the
+// and close, beside Kano's own buttons, where the system's, at the
 // window's edge, would straddle the card. macOS keeps its traffic lights.
 var ownControls = runtime.GOOS != "darwin"
 
@@ -75,7 +75,7 @@ var (
 )
 
 // windowControls are a window's minimize, maximize and close buttons, as
-// Kero draws them (ownControls), at the right of a header.
+// Kano draws them (ownControls), at the right of a header.
 func windowControls(c *ui.Context, pal *palette, w *mygo.Window) {
 	if !ownControls || w == nil {
 		return

@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"kero/internal/git"
-	"kero/internal/proto"
-	"kero/internal/settings"
+	"kano/internal/git"
+	"kano/internal/proto"
+	"kano/internal/settings"
 )
 
 // gitFollow follows the git worktrees the panes work in: each one's

@@ -1,5 +1,5 @@
-// Package proto is the wire protocol between kerod, the daemon that owns
-// every session's pseudo-terminal, and its clients: the app and the kero
+// Package proto is the wire protocol between kanod, the daemon that owns
+// every session's pseudo-terminal, and its clients: the app and the kano
 // CLI.
 //
 // A client connects to the daemon's Unix socket and sends one JSON line,
@@ -34,8 +34,8 @@ type Hello struct {
 	Session string `json:"session,omitempty"`
 	Cols    int    `json:"cols,omitempty"`
 	Rows    int    `json:"rows,omitempty"`
-	// Who connects, which `kero __bridge` adds to the Hello of a remote
-	// client's stream, for `kero clients`: the SSH client's address, how it
+	// Who connects, which `kano __bridge` adds to the Hello of a remote
+	// client's stream, for `kano clients`: the SSH client's address, how it
 	// came (ssh, wsl), and what the client said it is (MuxHello.Client).
 	Peer   string `json:"peer,omitempty"`
 	Via    string `json:"via,omitempty"`
@@ -47,11 +47,11 @@ type Welcome struct {
 	Version int   `json:"version"`
 	PID     int   `json:"pid"`
 	Started int64 `json:"started"` // unix ms
-	// App is the version of Kero that kerod runs (App.Version): after an
-	// update it is the version before, until kerod restarts.
+	// App is the version of Kano that kanod runs (App.Version): after an
+	// update it is the version before, until kanod restarts.
 	App string `json:"app,omitempty"`
-	// Build fingerprints the code kerod runs (build.Daemon): an update
-	// that leaves it as it was needs no restart. An earlier kerod, or the
+	// Build fingerprints the code kanod runs (build.Daemon): an update
+	// that leaves it as it was needs no restart. An earlier kanod, or the
 	// server build's, tells none.
 	Build string `json:"build,omitempty"`
 	Error string `json:"error,omitempty"`
@@ -76,16 +76,16 @@ type Message struct {
 
 	Event string `json:"event,omitempty"` // "state", "select", "action", "notice", "browser"
 	State *State `json:"state,omitempty"`
-	// Select asks the app to show a session ("kero focus").
+	// Select asks the app to show a session ("kano focus").
 	Select string `json:"select,omitempty"`
-	// Action asks the app to run one of its actions ("kero do"), with
+	// Action asks the app to run one of its actions ("kano do"), with
 	// Args, when the user allows Remote Control.
 	Action string            `json:"action,omitempty"`
 	Args   map[string]string `json:"args,omitempty"`
 	// Notice is a program's desktop notification, to show as it is.
 	Notice *Notice `json:"notice,omitempty"`
 	// Browser asks the app to do something on a browser pane's page
-	// ("kero browser"), which it answers with browser.answer.
+	// ("kano browser"), which it answers with browser.answer.
 	Browser *BrowserRequest `json:"browser,omitempty"`
 }
 
@@ -194,7 +194,7 @@ type Pane struct {
 	// with, once it ended and the pane went on with its shell.
 	CommandExit *int `json:"commandExit,omitempty"`
 	// AgentSession is the coding agent's own session, as its hook told
-	// (kero hook), while the agent runs: what a restore resumes.
+	// (kano hook), while the agent runs: what a restore resumes.
 	AgentSession *AgentSession `json:"agentSession,omitempty"`
 	// Restored: the daemon restarted (as after a reboot) and this pane's
 	// shell was started again in its directory, under its old scrollback.
@@ -210,8 +210,8 @@ type Pane struct {
 	Turn *Turn `json:"turn,omitempty"`
 }
 
-// GitInfo is a git worktree's branch and changes, as kerod last found
-// them. kerod replaces it whole, never changing one it sent.
+// GitInfo is a git worktree's branch and changes, as kanod last found
+// them. kanod replaces it whole, never changing one it sent.
 type GitInfo struct {
 	Root     string `json:"root"`             // the worktree's top level
 	Branch   string `json:"branch,omitempty"` // "" when detached
@@ -468,7 +468,7 @@ func isTitleGlyph(r rune) bool {
 }
 
 // DirName is a directory's last element, whichever system's it is: the
-// app shows a Windows host's C:\src\kero as kero on a Mac, where
+// app shows a Windows host's C:\src\kano as kano on a Mac, where
 // filepath.Base doesn't split at a backslash.
 func DirName(dir string) string {
 	t := strings.TrimRight(dir, `/\`)
@@ -540,22 +540,22 @@ func Home() string {
 	return h
 }
 
-// Name names kero's directories: "kero", or "kero-dev" for a development
+// Name names kano's directories: "kano", or "kano-dev" for a development
 // build, so that it runs a daemon, sessions and settings of its own beside
-// the installed Kero.
+// the installed Kano.
 func Name() string {
 	if mygo.IsDev() {
-		return "kero-dev"
+		return "kano-dev"
 	}
-	return "kero"
+	return "kano"
 }
 
-// Dir returns kero's directory: $KERO_HOME, else
-// ~/Library/Application Support/kero (~/.config/kero on Linux,
-// %AppData%\kero on Windows), of Name. The app, the daemon and the CLI of
+// Dir returns kano's directory: $KANO_HOME, else
+// ~/Library/Application Support/kano (~/.config/kano on Linux,
+// %AppData%\kano on Windows), of Name. The app, the daemon and the CLI of
 // a build share it.
 func Dir() string {
-	if d := os.Getenv("KERO_HOME"); d != "" {
+	if d := os.Getenv("KANO_HOME"); d != "" {
 		return d
 	}
 	base, err := os.UserConfigDir()
@@ -565,13 +565,13 @@ func Dir() string {
 	return filepath.Join(base, Name())
 }
 
-// SocketPath returns the daemon's socket: $KERO_SOCKET, else kerod.sock in
+// SocketPath returns the daemon's socket: $KANO_SOCKET, else kanod.sock in
 // Dir.
 func SocketPath() string {
-	if s := os.Getenv("KERO_SOCKET"); s != "" {
+	if s := os.Getenv("KANO_SOCKET"); s != "" {
 		return s
 	}
-	p := filepath.Join(Dir(), "kerod.sock")
+	p := filepath.Join(Dir(), "kanod.sock")
 	if len(p) > 100 {
 		// Past what a Unix socket's address holds (104 bytes on macOS):
 		// a short path of the user's, named after the directory.
@@ -579,16 +579,16 @@ func SocketPath() string {
 		h.Write([]byte(Dir()))
 		if runtime.GOOS == "windows" {
 			// Its temporary directory is the user's.
-			return filepath.Join(os.TempDir(), fmt.Sprintf("kero-%08x.sock", h.Sum32()))
+			return filepath.Join(os.TempDir(), fmt.Sprintf("kano-%08x.sock", h.Sum32()))
 		}
-		p = fmt.Sprintf("/tmp/kero-%d-%08x.sock", os.Getuid(), h.Sum32())
+		p = fmt.Sprintf("/tmp/kano-%d-%08x.sock", os.Getuid(), h.Sum32())
 	}
 	return p
 }
 
 // StopEvent names the event that asks the daemon of a pid to stop on
 // Windows, where it has no signals.
-func StopEvent(pid int) string { return fmt.Sprintf(`Local\kerod-stop-%d`, pid) }
+func StopEvent(pid int) string { return fmt.Sprintf(`Local\kanod-stop-%d`, pid) }
 
 // Ago writes how long ago a time was, as the sidebar shows it: "now",
 // "4m", "2h", "3d".
@@ -708,7 +708,7 @@ type (
 		// load, in ms: 0 for the app's default.
 		Timeout int64 `json:"timeout,omitempty"`
 	}
-	// BrowserRequest is a browser call as kerod hands it to the app: Req
+	// BrowserRequest is a browser call as kanod hands it to the app: Req
 	// is what the app answers it by, and Pane the browser pane's id.
 	BrowserRequest struct {
 		Req  int64  `json:"req"`
@@ -743,7 +743,7 @@ type (
 		Exit    bool  `json:"exit,omitempty"`
 		Timeout int64 `json:"timeout,omitempty"` // ms; 0 waits as long as it takes
 	}
-	// AgentSessionParams tell a pane's agent's session (kero hook).
+	// AgentSessionParams tell a pane's agent's session (kano hook).
 	// The pane is the one whose shell runs PID, the hook's process, else
 	// the one that can only be the agent's: an agent's service that panes
 	// share, as Codex's app server, runs hooks under none.
@@ -754,7 +754,7 @@ type (
 		Dir     string `json:"dir,omitempty"` // the agent's, to tell its pane by
 	}
 	// AgentSessionResult is the pane told of, and its session; Away: the
-	// agent runs under none of kero's shells, and so do its commands.
+	// agent runs under none of kano's shells, and so do its commands.
 	AgentSessionResult struct {
 		Pane    string `json:"pane"`
 		Session string `json:"session"`

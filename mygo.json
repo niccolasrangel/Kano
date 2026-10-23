@@ -1,6 +1,6 @@
 {
-  "name": "Kero",
-  "identifier": "sh.kero",
+  "name": "Kano",
+  "identifier": "sh.kano",
   "version": "2.1.10",
   "out": "build",
   "i18n": {
@@ -8,13 +8,7 @@
     "source": "en"
   },
   "updates": {
-    "publicKey": "WzJsOGNIuf6mcEqo5ff8jub+NoQQOEk4JXreLPYjgyQ=",
-    "github": "egoist/kero"
-  },
-  "macos": {
-    "signingIdentity": "Developer ID Application: xinyu zeng (GJE9R5VE87)",
-    "notarize": {
-      "keychainProfile": "NOTARY"
-    }
+    "publicKey": "RghjsEtgsXBcfgv3cOcpma5q+Ev/mzdYfxYbxXY0XmA=",
+    "github": "YOUR_GITHUB_USERNAME/kano"
   }
 }

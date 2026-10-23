@@ -1,5 +1,5 @@
-// Package daemon is kerod: the process that owns every session's
-// pseudo-terminal, so that sessions outlive the app. The app, and the kero
+// Package daemon is kanod: the process that owns every session's
+// pseudo-terminal, so that sessions outlive the app. The app, and the kano
 // CLI, attach to it through a Unix socket; quitting the app detaches it,
 // and opening it again attaches it where it left off.
 package daemon
@@ -27,16 +27,16 @@ import (
 
 	"github.com/egoist/mygo/plugins/terminal"
 
-	"kero/internal/build"
-	"kero/internal/clilink"
-	"kero/internal/detach"
-	"kero/internal/proto"
-	"kero/internal/settings"
-	"kero/internal/shell"
-	"kero/internal/update"
+	"kano/internal/build"
+	"kano/internal/clilink"
+	"kano/internal/detach"
+	"kano/internal/proto"
+	"kano/internal/settings"
+	"kano/internal/shell"
+	"kano/internal/update"
 )
 
-// Daemon is kerod's state.
+// Daemon is kanod's state.
 type Daemon struct {
 	dir     string
 	exe     string
@@ -49,11 +49,11 @@ type Daemon struct {
 	sessions []*session
 	panes    map[string]*pane
 	subs     map[*controlConn]struct{}
-	clients  map[*proto.ClientInfo]struct{} // the connections, for kero clients
+	clients  map[*proto.ClientInfo]struct{} // the connections, for kano clients
 	conns    int
 	idleAt   time.Time
 	ending   bool
-	// restarting: kerod stops to start again, as a remote client asked
+	// restarting: kanod stops to start again, as a remote client asked
 	// (proto.KindRestart).
 	restarting bool
 	// asks are the browser calls waiting for the app's answer, by the
@@ -73,9 +73,9 @@ type Daemon struct {
 	quitOnce sync.Once
 }
 
-// Options are how kerod runs.
+// Options are how kanod runs.
 type Options struct {
-	// Serve: kerod runs in the foreground, as a service does (kero daemon
+	// Serve: kanod runs in the foreground, as a service does (kano daemon
 	// serve): it logs to its standard error too, and never exits for being
 	// idle.
 	Serve bool
@@ -92,7 +92,7 @@ func Run(opts Options) error {
 	if err := os.MkdirAll(filepath.Join(dir, "sessions"), 0o700); err != nil {
 		return err
 	}
-	logf, err := os.OpenFile(filepath.Join(dir, "kerod.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
+	logf, err := os.OpenFile(filepath.Join(dir, "kanod.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 	if err != nil {
 		return err
 	}
@@ -112,8 +112,8 @@ func Run(opts Options) error {
 	}
 
 	// One daemon at a time: the lock is the daemon's while it runs. One
-	// that takes over from a kerod restarting waits for it to let go.
-	lock, err := os.OpenFile(filepath.Join(dir, "kerod.lock"), os.O_CREATE|os.O_RDWR, 0o600)
+	// that takes over from a kanod restarting waits for it to let go.
+	lock, err := os.OpenFile(filepath.Join(dir, "kanod.lock"), os.O_CREATE|os.O_RDWR, 0o600)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func Run(opts Options) error {
 			break
 		}
 		if os.Getenv(takeoverEnv) == "" || time.Now().After(wait) {
-			return errors.New("kerod is already running")
+			return errors.New("kanod is already running")
 		}
 		time.Sleep(100 * time.Millisecond)
 	}
@@ -152,10 +152,10 @@ func Run(opts Options) error {
 	d.git = newGitFollow(d)
 	empty := ""
 	d.viewed.Store(&empty)
-	lg.Printf("kerod %d started (Kero %s, pid %d, %s)", proto.Version, build.Version(), os.Getpid(), exe)
+	lg.Printf("kanod %d started (Kano %s, pid %d, %s)", proto.Version, build.Version(), os.Getpid(), exe)
 	d.linkCLI()
 	// The listeners first: Tailscale Serve's socket takes a umask of its
-	// own, which no program kerod starts may get.
+	// own, which no program kanod starts may get.
 	d.net = d.listen()
 	d.restore()
 
@@ -201,11 +201,11 @@ func Run(opts Options) error {
 	return nil
 }
 
-// takeoverEnv tells a kerod that starts as another restarts to wait for
+// takeoverEnv tells a kanod that starts as another restarts to wait for
 // its lock.
-const takeoverEnv = "KERO_TAKEOVER"
+const takeoverEnv = "KANO_TAKEOVER"
 
-// successor starts the kerod that follows this one, as it restarts: the
+// successor starts the kanod that follows this one, as it restarts: the
 // service's, which its manager starts again, else one of this executable,
 // which waits for this one to let go of the lock, and restores its
 // sessions.
@@ -221,10 +221,10 @@ func (d *Daemon) successor() {
 	}
 }
 
-// underService reports whether a service manager runs kerod, which starts
-// it again as it exits: the unit and the agent of kero daemon
+// underService reports whether a service manager runs kanod, which starts
+// it again as it exits: the unit and the agent of kano daemon
 // install-service say so.
-func underService() bool { return os.Getenv("KERO_SERVICE") == "1" }
+func underService() bool { return os.Getenv("KANO_SERVICE") == "1" }
 
 // localPeer names the process at the other end of the socket.
 func localPeer(c net.Conn) string {
@@ -236,8 +236,8 @@ func localPeer(c net.Conn) string {
 
 func (d *Daemon) stop() { d.quitOnce.Do(func() { close(d.quit) }) }
 
-// linkCLI keeps bin/kero pointing at this executable (package clilink),
-// which sessions have on their PATH: the kero CLI, for agents to drive
+// linkCLI keeps bin/kano pointing at this executable (package clilink),
+// which sessions have on their PATH: the kano CLI, for agents to drive
 // other sessions.
 func (d *Daemon) linkCLI() {
 	if d.exe == "" {
@@ -307,7 +307,7 @@ func (d *Daemon) tickLoop() {
 		for _, p := range d.panes {
 			panes = append(panes, p)
 		}
-		// A server, or a kerod others reach over the network, stays.
+		// A server, or a kanod others reach over the network, stays.
 		idle := len(d.sessions) == 0 && d.conns == 0 && !d.opts.Serve && !d.net.active()
 		if !idle {
 			d.idleAt = now
@@ -450,7 +450,7 @@ func (d *Daemon) environment(sid, pid, shell string, extra []string) []string {
 		switch {
 		case k == "CLAUDECODE", k == "TERM_PROGRAM", k == "TERM_PROGRAM_VERSION", k == "TERM_SESSION_ID",
 			k == "ITERM_SESSION_ID", k == "WINDOWID", k == "KITTY_WINDOW_ID", k == "LC_TERMINAL", k == "LC_TERMINAL_VERSION",
-			k == "KERO_SESSION", k == "KERO_PANE", k == "KERO_HOST", k == "KERO_ZDOTDIR", k == takeoverEnv, k == "KERO_SERVICE", k == "INVOCATION_ID", k == "MYGO_GHOSTTY_VT", k == "TMUX", k == "TMUX_PANE",
+			k == "KANO_SESSION", k == "KANO_PANE", k == "KANO_HOST", k == "KANO_ZDOTDIR", k == takeoverEnv, k == "KANO_SERVICE", k == "INVOCATION_ID", k == "MYGO_GHOSTTY_VT", k == "TMUX", k == "TMUX_PANE",
 			strings.HasPrefix(k, "CLAUDE_CODE_"), strings.HasPrefix(k, "GHOSTTY_"),
 			strings.HasPrefix(k, "VSCODE_"), strings.HasPrefix(k, "__CF"), k == "XPC_SERVICE_NAME":
 			continue
@@ -470,21 +470,21 @@ func (d *Daemon) environment(sid, pid, shell string, extra []string) []string {
 	}
 	set("TERM=xterm-256color")
 	set("COLORTERM=truecolor")
-	// kero's emulator is Ghostty's: programs that know Ghostty, as coding
+	// kano's emulator is Ghostty's: programs that know Ghostty, as coding
 	// agents for their notifications and keyboard, take it for one.
-	// LC_TERMINAL names kero, as iTerm2 names itself there.
+	// LC_TERMINAL names kano, as iTerm2 names itself there.
 	set("TERM_PROGRAM=ghostty")
 	set("TERM_PROGRAM_VERSION=" + ghosttyVersion)
-	set("LC_TERMINAL=kero")
+	set("LC_TERMINAL=kano")
 	set(fmt.Sprintf("LC_TERMINAL_VERSION=%d", proto.Version))
-	// The shell the pane runs, not the one whoever started kerod had. On
+	// The shell the pane runs, not the one whoever started kanod had. On
 	// Windows, only a POSIX shell's: programs there take $SHELL for one.
 	if runtime.GOOS != "windows" || posixShell(shellName(shell)) {
 		set("SHELL=" + shell)
 	}
-	set("KERO_SESSION=" + sid)
-	set("KERO_PANE=" + pid)
-	set("KERO_SOCKET=" + proto.SocketPath())
+	set("KANO_SESSION=" + sid)
+	set("KANO_PANE=" + pid)
+	set("KANO_SOCKET=" + proto.SocketPath())
 	if os.Getenv("LANG") == "" && os.Getenv("LC_ALL") == "" && os.Getenv("LC_CTYPE") == "" {
 		set("LANG=en_US.UTF-8")
 	}
@@ -599,7 +599,7 @@ func (c *controlConn) event(m proto.Message) {
 	}
 }
 
-// identity is who a connection comes from, as kero clients shows it.
+// identity is who a connection comes from, as kano clients shows it.
 type identity struct {
 	peer string // "uid 501", "alice@example.com"
 	via  string // "unix", "tailnet", "tailnet-serve"
@@ -638,7 +638,7 @@ func (d *Daemon) serveHello(conn net.Conn, r *bufio.Reader, line []byte, id iden
 		return
 	}
 	// A bridge on this machine passes on a remote client's connection,
-	// saying who it is, which kero clients shows as the bridge claims it:
+	// saying who it is, which kano clients shows as the bridge claims it:
 	// only a bridge's ways, ssh and wsl. A listener's own say is the only
 	// one of a connection it took.
 	if id.via == "unix" && (hello.Via == "ssh" || hello.Via == "wsl") {
@@ -649,7 +649,7 @@ func (d *Daemon) serveHello(conn net.Conn, r *bufio.Reader, line []byte, id iden
 	}
 	welcome := proto.Welcome{Version: proto.Version, PID: os.Getpid(), Started: d.started.UnixMilli(), App: build.Version(), Build: build.Daemon}
 	if hello.Version != proto.Version {
-		welcome.Error = fmt.Sprintf("kerod speaks protocol %d, the client %d", proto.Version, hello.Version)
+		welcome.Error = fmt.Sprintf("kanod speaks protocol %d, the client %d", proto.Version, hello.Version)
 		json.NewEncoder(conn).Encode(welcome)
 		return
 	}

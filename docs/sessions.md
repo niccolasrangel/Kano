@@ -1,11 +1,11 @@
 ---
 title: Sessions & Projects
-description: How Kero groups terminal sessions by project and keeps them running in kerod.
+description: How Kano groups terminal sessions by project and keeps them running in kanod.
 ---
 
 # Sessions & Projects
 
-Kero organizes your work in two levels: projects (folders) hold sessions (tasks), and every session keeps running in kerod until you close it.
+Kano organizes your work in two levels: projects (folders) hold sessions (tasks), and every session keeps running in kanod until you close it.
 
 ## Sessions
 
@@ -41,24 +41,24 @@ Until you or an agent name a session, the `session-name` setting (**Name session
 
 ## Projects
 
-A **project** is a folder. Kero groups sessions under their project in the sidebar. Open one with <kbd>⌘</kbd> <kbd>O</kbd>, or let `kero new` pick it by the directory a session starts in.
+A **project** is a folder. Kano groups sessions under their project in the sidebar. Open one with <kbd>⌘</kbd> <kbd>O</kbd>, or let `kano new` pick it by the directory a session starts in.
 
 ```sh
-kero projects            # list projects
-kero new -p my-app       # start a session in a project by name
+kano projects            # list projects
+kano new -p my-app       # start a session in a project by name
 ```
 
-## kerod
+## kanod
 
-Sessions run in **kerod**, a daemon that the app starts on demand. Kero is a window onto kerod:
+Sessions run in **kanod**, a daemon that the app starts on demand. Kano is a window onto kanod:
 
-- Quitting Kero leaves every session running.
-- Opening Kero again shows every session as it was, scrollback included.
-- After kerod itself restarts, such as after a reboot, Kero starts your sessions again in their directories. Turn this off with `restore-sessions = false`.
-- A pane that was running Claude Code, Codex, Pi or OpenCode resumes its conversation, as the agent's own resume option would, once [Kero's skill](./agents.md#install-the-skill) is set up for that agent. Other programs don't start again unasked: their pane comes back at a shell. Turn this off with `resume-agents = false`.
+- Quitting Kano leaves every session running.
+- Opening Kano again shows every session as it was, scrollback included.
+- After kanod itself restarts, such as after a reboot, Kano starts your sessions again in their directories. Turn this off with `restore-sessions = false`.
+- A pane that was running Claude Code, Codex, Pi or OpenCode resumes its conversation, as the agent's own resume option would, once [Kano's skill](./agents.md#install-the-skill) is set up for that agent. Other programs don't start again unasked: their pane comes back at a shell. Turn this off with `resume-agents = false`.
 
 ```sh
-kero daemon status       # is kerod running?
-kero daemon restart      # restart it (sessions start again)
-kero daemon stop         # stop it and end every session
+kano daemon status       # is kanod running?
+kano daemon restart      # restart it (sessions start again)
+kano daemon stop         # stop it and end every session
 ```

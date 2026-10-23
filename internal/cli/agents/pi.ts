@@ -1,16 +1,16 @@
-// Installed by Kero (`kero skill setup`), which replaces it as Kero
-// updates; `kero skill remove` removes it. Inside Kero, it tells Pi which
-// session and pane it runs in, and tells Kero Pi's session, to resume it
-// after Kero's background service restarts. Outside Kero it does nothing.
+// Installed by Kano (`kano skill setup`), which replaces it as Kano
+// updates; `kano skill remove` removes it. Inside Kano, it tells Pi which
+// session and pane it runs in, and tells Kano Pi's session, to resume it
+// after Kano's background service restarts. Outside Kano it does nothing.
 import { execFile } from "node:child_process";
 
-const KERO = __KERO__;
+const KANO = __KANO__;
 
-// hook runs `kero hook pi` as Claude Code runs its hooks, returning what
-// Kero tells the agent.
+// hook runs `kano hook pi` as Claude Code runs its hooks, returning what
+// Kano tells the agent.
 function hook(sessionID: string | undefined): Promise<string> {
   return new Promise((resolve) => {
-    const child = execFile(KERO, ["hook", "pi"], { timeout: 5000 }, (err, stdout) => {
+    const child = execFile(KANO, ["hook", "pi"], { timeout: 5000 }, (err, stdout) => {
       try {
         resolve(JSON.parse(stdout).hookSpecificOutput.additionalContext ?? "");
       } catch {
@@ -23,7 +23,7 @@ function hook(sessionID: string | undefined): Promise<string> {
 }
 
 export default function (pi: any) {
-  if (!process.env.KERO_PANE) return;
+  if (!process.env.KANO_PANE) return;
   let context = "";
   pi.on("session_start", async (_event: any, ctx: any) => {
     // A terminal session, or a one-off prompt; not one a program drives.
@@ -37,6 +37,6 @@ export default function (pi: any) {
     context = await hook(sessionID);
   });
   pi.on("before_agent_start", (event: any) => {
-    if (context) event.systemPromptOptions.sections.kero = context;
+    if (context) event.systemPromptOptions.sections.kano = context;
   });
 }

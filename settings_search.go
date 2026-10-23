@@ -6,9 +6,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"kero/internal/actions"
+	"kano/internal/actions"
 
-	"kero/locales"
+	"kano/locales"
 )
 
 // searchEntry is a setting the Settings window's search finds: its page,
@@ -36,7 +36,7 @@ func settingsIndex() []searchEntry {
 		{"general", locales.SetAutoInstall(), "updates automatic install download"},
 
 		{"appearance", locales.SetAppearance(), "window-theme dark light mode system"},
-		{"appearance", locales.SetLanguage(), "language locale translation chinese english 语言 中文"},
+		{"appearance", locales.SetLanguage(), "language locale translation chinese english portuguese brazil 语言 中文 português"},
 		{"appearance", locales.SetTranslucent(), "window-translucent vibrancy blur material transparency"},
 		{"appearance", locales.SetBackground(), "background wash petal mist meadow dusk plain gradient color"},
 
@@ -69,20 +69,20 @@ func settingsIndex() []searchEntry {
 		{"notifications", locales.SetDockBadge(), "dock-badge count"},
 		{"notifications", locales.SetDockBounce(), "dock-bounce attention"},
 
-		{"agents", locales.SetRemoteControlRow(), "remote-control kero do focus browser automation"},
+		{"agents", locales.SetRemoteControlRow(), "remote-control kano do focus browser automation"},
 		{"agents", locales.SetCliRow(), "cli command line tool install path"},
 		{"agents", "Claude Code", "skill agents install"},
 		{"agents", "Codex, OpenCode, Pi", "skill agents install"},
 		{"agents", locales.SetProgramStatus(), "osc 7501 report progress"},
 
-		{"hosts", locales.SetHosts(), "host hosts remote server ssh tailscale tailnet wsl machine linux devbox -H kero hosts"},
+		{"hosts", locales.SetHosts(), "host hosts remote server ssh tailscale tailnet wsl machine linux devbox -H kano hosts"},
 		{"hosts", locales.SetHostAdd(), "add host address ssh wsl https"},
-		{"hosts", locales.SetHostRemoteControl(), "remote-control host kero do focus"},
+		{"hosts", locales.SetHostRemoteControl(), "remote-control host kano do focus"},
 		{"hosts", locales.SetListen(), "listen tailnet tailscale share this computer host port 7373 listen-allow"},
 
 		{"advanced", locales.SetConfigFile(), "configuration ghostty edit file dotfiles"},
-		{"advanced", "kerod", "daemon background service restart sessions"},
-		{"advanced", locales.SetLog(), "kerod log debug"},
+		{"advanced", "kanod", "daemon background service restart sessions"},
+		{"advanced", locales.SetLog(), "kanod log debug"},
 		{"advanced", locales.SetFolder(), "data directory finder"},
 		{"advanced", locales.SetReset(), "defaults reset"},
 	}
@@ -104,7 +104,7 @@ func searchEntries(shortcuts map[string]string) []searchEntry {
 // action by when its title doesn't say it.
 var actionWords = map[string]string{
 	"settings.open":     "preferences options config configure",
-	"cli.install":       "kero command line shell path terminal",
+	"cli.install":       "kano command line shell path terminal",
 	"app.quitAll":       "exit quit kill stop end all sessions",
 	"session.new":       "create add tab terminal shell",
 	"session.newHome":   "create add tab terminal shell home directory ~",
@@ -149,7 +149,7 @@ var pageWords = map[string]string{
 	"keyboard":      "shortcuts keybindings keys hotkeys",
 	"agents":        "claude codex ai skill cli remote control",
 	"hosts":         "remote ssh server machine tailscale wsl",
-	"advanced":      "config file daemon kerod log reset",
+	"advanced":      "config file daemon kanod log reset",
 }
 
 // matches reports whether every word of a query is in a text.

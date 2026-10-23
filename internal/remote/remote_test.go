@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
 func TestParseAddr(t *testing.T) {
@@ -34,8 +34,8 @@ func TestParseAddr(t *testing.T) {
 		{"wsl://Ubuntu-24.04", "wsl://Ubuntu-24.04", "wsl", "", "Ubuntu-24.04", ""},
 		{"http://build:7373", "http://build:7373", "http", "", "build", "7373"},
 		{"https://build.tail1234.ts.net", "https://build.tail1234.ts.net", "https", "", "build.tail1234.ts.net", ""},
-		{"devbox?kero=/opt/kero/kero", "devbox?kero=%2Fopt%2Fkero%2Fkero", "ssh", "", "devbox", ""},
-		{"devbox?kero=C:/kero/kero.exe", "devbox?kero=C%3A%2Fkero%2Fkero.exe", "ssh", "", "devbox", ""},
+		{"devbox?kano=/opt/kano/kano", "devbox?kano=%2Fopt%2Fkano%2Fkano", "ssh", "", "devbox", ""},
+		{"devbox?kano=C:/kano/kano.exe", "devbox?kano=C%3A%2Fkano%2Fkano.exe", "ssh", "", "devbox", ""},
 	} {
 		a, err := ParseAddr(c.in)
 		if err != nil {
@@ -52,8 +52,8 @@ func TestParseAddr(t *testing.T) {
 			t.Errorf("%q: read back %+v, %v", c.in, b, err)
 		}
 	}
-	for _, bad := range []string{"", "ftp://x", "-oProxyCommand=evil", "ssh://-x", "me:secret@host", "http://", "a b", "devbox/path", "http://x?kero=y", "host:port",
-		"dev$(id)box", "ssh://a;b@host", "x@host's", "host?kero=relative/kero", "host?kero=/opt/it's/kero", "wsl://Ubuntu;rm", "host?kero=C:", "host?kero=C:kero.exe", "host?kero=C:/a b/kero.exe", "host?kero=1:/kero"} {
+	for _, bad := range []string{"", "ftp://x", "-oProxyCommand=evil", "ssh://-x", "me:secret@host", "http://", "a b", "devbox/path", "http://x?kano=y", "host:port",
+		"dev$(id)box", "ssh://a;b@host", "x@host's", "host?kano=relative/kano", "host?kano=/opt/it's/kano", "wsl://Ubuntu;rm", "host?kano=C:", "host?kano=C:kano.exe", "host?kano=C:/a b/kano.exe", "host?kano=1:/kano"} {
 		if a, err := ParseAddr(bad); err == nil {
 			t.Errorf("%q read as %+v", bad, a)
 		}
@@ -61,7 +61,7 @@ func TestParseAddr(t *testing.T) {
 }
 
 func TestBridgeCommandQuotes(t *testing.T) {
-	cmd := bridgeCommand(Addr{Scheme: "ssh", Host: "x", Kero: "/opt/it's/kero"}, "")
+	cmd := bridgeCommand(Addr{Scheme: "ssh", Host: "x", Kano: "/opt/it's/kano"}, "")
 	if !strings.HasPrefix(cmd, "sh -c '") || !strings.Contains(cmd, `'\''`) {
 		t.Errorf("%s", cmd)
 	}
@@ -75,7 +75,7 @@ func TestBridgeCommandQuotes(t *testing.T) {
 	}
 	// cmd /c takes the quotes off a command that starts with one, and the
 	// SSH server those of one for PowerShell.
-	for _, a := range []Addr{{Scheme: "ssh", Host: "x"}, {Scheme: "ssh", Host: "x", Kero: "C:/kero/kero.exe"}} {
+	for _, a := range []Addr{{Scheme: "ssh", Host: "x"}, {Scheme: "ssh", Host: "x", Kano: "C:/kano/kano.exe"}} {
 		if c := bridgeCommand(a, shellCmd); strings.HasPrefix(c, `"`) || !strings.Contains(c, "exit /b 127") {
 			t.Errorf("cmd: %s", c)
 		}
@@ -83,8 +83,8 @@ func TestBridgeCommandQuotes(t *testing.T) {
 			t.Errorf("PowerShell: %s", c)
 		}
 	}
-	if c := bridgeCommand(Addr{Scheme: "ssh", Host: "x", Kero: "C:/kero/kero.exe"}, shellCmd); !strings.HasPrefix(c, `if exist "C:/kero/kero.exe" ("C:/kero/kero.exe" __bridge`) {
-		t.Errorf("cmd, kero=: %s", c)
+	if c := bridgeCommand(Addr{Scheme: "ssh", Host: "x", Kano: "C:/kano/kano.exe"}, shellCmd); !strings.HasPrefix(c, `if exist "C:/kano/kano.exe" ("C:/kano/kano.exe" __bridge`) {
+		t.Errorf("cmd, kano=: %s", c)
 	}
 }
 
@@ -105,14 +105,14 @@ func TestWindowsShell(t *testing.T) {
 		// The same in the host's code page, GBK, which no pattern of quotes
 		// matches.
 		{1, "sh: \xce\xde\xb7\xa8\xbd\xab\xa1\xb0sh\xa1\xb1\xcf\xee\r\n", shellPowerShell},
-		{127, "sh: 1: exec: /opt/kero: not found", ""},
+		{127, "sh: 1: exec: /opt/kano: not found", ""},
 		{2, "sh: 1: Syntax error: \"(\" unexpected", ""},
-		{1, "sh: 1: kero: something", ""},
-		{1, "sh: line 1: kero: something", ""},
+		{1, "sh: 1: kano: something", ""},
+		{1, "sh: line 1: kano: something", ""},
 		{1, "sh: -c: line 0: syntax error", ""},
 		{2, "'sh' is not recognized as an internal or external command,\r\n", ""},
 		{255, "ssh: connect to host x port 22: Connection refused", ""},
-		{1, "kero: kerod did not start", ""},
+		{1, "kano: kanod did not start", ""},
 	} {
 		if got := windowsShell(c.code, c.stderr); got != c.want {
 			t.Errorf("%d %q: %q, want %q", c.code, c.stderr, got, c.want)
@@ -120,22 +120,22 @@ func TestWindowsShell(t *testing.T) {
 	}
 }
 
-// fakeSSH is ssh to a host whose shell is $KERO_TEST_SHELL: cmd or
+// fakeSSH is ssh to a host whose shell is $KANO_TEST_SHELL: cmd or
 // powershell, which run no sh, or sh. It logs the commands it runs, and
-// finds no kero.
+// finds no kano.
 func fakeSSH() {
 	cmd := os.Args[len(os.Args)-1]
-	if f, err := os.OpenFile(os.Getenv("KERO_TEST_SSH_LOG"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600); err == nil {
+	if f, err := os.OpenFile(os.Getenv("KANO_TEST_SSH_LOG"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600); err == nil {
 		fmt.Fprintf(f, "%q\n", cmd)
 		f.Close()
 	}
-	shell := os.Getenv("KERO_TEST_SHELL")
+	shell := os.Getenv("KANO_TEST_SHELL")
 	sh := strings.HasPrefix(cmd, "sh -c ")
 	switch {
 	case shell == "sh" && cmd == "sh -c 'exit 0'":
 		os.Exit(0)
 	case shell == "sh" && sh:
-		fmt.Fprintln(os.Stderr, "kero is not installed on devbox")
+		fmt.Fprintln(os.Stderr, "kano is not installed on devbox")
 		os.Exit(127)
 	case shell == "cmd" && sh:
 		fmt.Fprint(os.Stderr, "'sh' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n")
@@ -144,7 +144,7 @@ func fakeSSH() {
 		fmt.Fprint(os.Stderr, "\x1b[31;1msh: \x1b[31;1mThe term 'sh' is not recognized as a name of a cmdlet.\x1b[0m\r\n")
 		os.Exit(1)
 	case shell == "cmd" && strings.HasPrefix(cmd, "if exist "), shell == "powershell" && strings.HasPrefix(cmd, "$k = @("):
-		fmt.Fprint(os.Stderr, "kero is not installed on DEVBOX\r\n")
+		fmt.Fprint(os.Stderr, "kano is not installed on DEVBOX\r\n")
 		os.Exit(127)
 	}
 	fmt.Fprintln(os.Stderr, "unexpected command")
@@ -152,25 +152,25 @@ func fakeSSH() {
 }
 
 func TestMain(m *testing.M) {
-	if os.Getenv("KERO_TEST_SHELL") != "" {
+	if os.Getenv("KANO_TEST_SHELL") != "" {
 		fakeSSH()
 	}
 	os.Exit(m.Run())
 }
 
 // A host of Windows is found as its shell fails to run sh, and reached
-// with a command of that shell from then on; Kero installs there with
+// with a command of that shell from then on; Kano installs there with
 // PowerShell.
 func TestDialWindows(t *testing.T) {
 	exe, err := os.Executable()
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("KERO_SSH", exe)
+	t.Setenv("KANO_SSH", exe)
 	for i, shell := range []string{"cmd", "powershell", "sh"} {
 		log := filepath.Join(t.TempDir(), "ssh.log")
-		t.Setenv("KERO_TEST_SHELL", shell)
-		t.Setenv("KERO_TEST_SSH_LOG", log)
+		t.Setenv("KANO_TEST_SHELL", shell)
+		t.Setenv("KANO_TEST_SSH_LOG", log)
 		a := Addr{Scheme: "ssh", Host: fmt.Sprintf("devbox%d", i)}
 		for range 2 {
 			ctx, cancel := context.WithTimeout(t.Context(), 20*time.Second)
@@ -228,7 +228,7 @@ func TestParseListen(t *testing.T) {
 		"tailnet://":                     {Kind: "tailnet", Port: DefaultPort},
 		"tailnet://:7400":                {Kind: "tailnet", Port: "7400"},
 		"tailnet-serve://":               {Kind: "tailnet-serve"},
-		"tailnet-serve:///run/kero.sock": {Kind: "tailnet-serve", Path: "/run/kero.sock"},
+		"tailnet-serve:///run/kano.sock": {Kind: "tailnet-serve", Path: "/run/kano.sock"},
 	} {
 		got, err := ParseListen(in)
 		if err != nil || got != want {
@@ -267,7 +267,7 @@ func pipes() (client, server io.ReadWriteCloser) {
 func echoServer(t *testing.T) *Server {
 	return &Server{
 		Info: func() proto.HostInfo {
-			return proto.HostInfo{OS: "linux", Hostname: "box", Kero: "9.9.9", Version: proto.Version}
+			return proto.HostInfo{OS: "linux", Hostname: "box", Kano: "9.9.9", Version: proto.Version}
 		},
 		Stream: func(s net.Conn, hello []byte, mux proto.MuxHello) {
 			defer s.Close()
@@ -395,21 +395,21 @@ func TestMuxOtherVersion(t *testing.T) {
 	go func() {
 		br := bufio.NewReader(sv)
 		br.ReadBytes('\n')
-		b, _ := json.Marshal(proto.MuxWelcome{Mux: proto.MuxVersion + 1, Host: proto.HostInfo{Kero: "9.0"}})
+		b, _ := json.Marshal(proto.MuxWelcome{Mux: proto.MuxVersion + 1, Host: proto.HostInfo{Kano: "9.0"}})
 		sv.Write(append(b, '\n'))
 	}()
 	_, err := handshake(context.Background(), cl, Addr{Scheme: "ssh", Host: "x"}, Options{})
-	if err == nil || !strings.Contains(err.Error(), "Kero 9.0") {
+	if err == nil || !strings.Contains(err.Error(), "Kano 9.0") {
 		t.Errorf("a host of another mux version: %v", err)
 	}
 	cl, sv = pipes()
 	go func() {
-		// Not Kero at all: a shell that says nothing of it.
+		// Not Kano at all: a shell that says nothing of it.
 		bufio.NewReader(sv).ReadBytes('\n')
 		io.WriteString(sv, strings.Repeat("hello\n", 200))
 	}()
-	if _, err := handshake(context.Background(), cl, Addr{Scheme: "ssh", Host: "x"}, Options{}); err == nil || !strings.Contains(err.Error(), "not Kero") {
-		t.Errorf("not Kero: %v", err)
+	if _, err := handshake(context.Background(), cl, Addr{Scheme: "ssh", Host: "x"}, Options{}); err == nil || !strings.Contains(err.Error(), "not Kano") {
+		t.Errorf("not Kano: %v", err)
 	}
 }
 
@@ -441,7 +441,7 @@ func TestFlateConn(t *testing.T) {
 	}
 }
 
-// Plain http:// carries Kero only to a tailnet peer, or through a tunnel
+// Plain http:// carries Kano only to a tailnet peer, or through a tunnel
 // of this machine's.
 func TestTailnetAddr(t *testing.T) {
 	for ip, ok := range map[string]bool{"100.64.0.1": true, "100.127.255.254": true, "fd7a:115c:a1e0::1": true, "127.0.0.1": true, "::1": true,
@@ -452,7 +452,7 @@ func TestTailnetAddr(t *testing.T) {
 	}
 }
 
-// The bridge's sh finds kero where it looks, a path with a space too, and
+// The bridge's sh finds kano where it looks, a path with a space too, and
 // says when there is none.
 func TestBridgeScript(t *testing.T) {
 	if runtime.GOOS == "windows" {
@@ -462,7 +462,7 @@ func TestBridgeScript(t *testing.T) {
 	if err != nil {
 		t.Skip(err)
 	}
-	for _, loc := range []string{"", ".local/bin/kero", "Library/Application Support/kero/bin/kero"} {
+	for _, loc := range []string{"", ".local/bin/kano", "Library/Application Support/kano/bin/kano"} {
 		home := t.TempDir()
 		if loc != "" {
 			os.MkdirAll(filepath.Dir(filepath.Join(home, loc)), 0o755)
@@ -474,7 +474,7 @@ func TestBridgeScript(t *testing.T) {
 		if loc == "" {
 			var ee *exec.ExitError
 			if !errors.As(err, &ee) || ee.ExitCode() != bridgeNotFound {
-				t.Errorf("no kero: %q, %v", out, err)
+				t.Errorf("no kano: %q, %v", out, err)
 			}
 			continue
 		}
@@ -491,10 +491,10 @@ func TestFindShell(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("KERO_SSH", exe)
-	t.Setenv("KERO_TEST_SSH_LOG", filepath.Join(t.TempDir(), "ssh.log"))
+	t.Setenv("KANO_SSH", exe)
+	t.Setenv("KANO_TEST_SSH_LOG", filepath.Join(t.TempDir(), "ssh.log"))
 	for i, shell := range []string{"cmd", "powershell", "sh"} {
-		t.Setenv("KERO_TEST_SHELL", shell)
+		t.Setenv("KANO_TEST_SHELL", shell)
 		a := Addr{Scheme: "ssh", Host: fmt.Sprintf("probe%d", i)}
 		if err := FindShell(a, true); err != nil {
 			t.Errorf("%s: %v", shell, err)

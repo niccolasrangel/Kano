@@ -4,7 +4,7 @@ import (
 	"embed"
 
 	"github.com/egoist/mygo/ui"
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
 // The icons are Framework7's, drawn after SF Symbols so that they feel at
@@ -18,12 +18,12 @@ var iconFiles embed.FS
 func glyph(name string) *ui.SVG {
 	b, err := iconFiles.ReadFile("icons/" + name + ".svg")
 	if err != nil {
-		panic("kero: no icon " + name)
+		panic("kano: no icon " + name)
 	}
 	return ui.MustParseSVG(b)
 }
 
-// icon draws an icon of kero's own, on 16, as a status glyph.
+// icon draws an icon of kano's own, on 16, as a status glyph.
 func icon(shapes string) *ui.SVG {
 	return ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">` + shapes + `</svg>`))
 }
@@ -57,7 +57,7 @@ var (
 	editIcon        = glyph("f7-pencil")
 )
 
-// programIcons are the logos of programs a pane may run, by the name kerod
+// programIcons are the logos of programs a pane may run, by the name kanod
 // gives the foreground program, its agent or its script's runtime.
 var programIcons = map[string]*ui.SVG{}
 

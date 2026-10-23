@@ -6,7 +6,7 @@ import (
 )
 
 func TestSplitHost(t *testing.T) {
-	t.Setenv("KERO_HOST", "")
+	t.Setenv("KANO_HOST", "")
 	for _, c := range []struct {
 		args []string
 		host string
@@ -26,12 +26,12 @@ func TestSplitHost(t *testing.T) {
 			t.Errorf("%q: %q %q %v", c.args, host, rest, err)
 		}
 	}
-	t.Setenv("KERO_HOST", "build")
+	t.Setenv("KANO_HOST", "build")
 	if host, env, _, _ := splitHost([]string{"ls"}); host != "build" || !env {
-		t.Errorf("$KERO_HOST: %q", host)
+		t.Errorf("$KANO_HOST: %q", host)
 	}
 	if host, env, _, _ := splitHost([]string{"-H", "other", "ls"}); host != "other" || env {
-		t.Errorf("-H over $KERO_HOST: %q", host)
+		t.Errorf("-H over $KANO_HOST: %q", host)
 	}
 	for _, bad := range [][]string{{"-H"}, {"-H", "build"}} {
 		if _, _, _, err := splitHost(bad); err == nil {
@@ -66,24 +66,24 @@ func TestRemoteRepoPath(t *testing.T) {
 	}
 }
 
-// Inside a pane, $KERO_HOST, which a profile may set, gives way to the
+// Inside a pane, $KANO_HOST, which a profile may set, gives way to the
 // pane's machine; a command of this machine alone ignores it.
-func TestKeroHostScope(t *testing.T) {
-	t.Setenv("KERO_HOST", "build")
-	t.Setenv("KERO_PANE", "p1")
+func TestKanoHostScope(t *testing.T) {
+	t.Setenv("KANO_HOST", "build")
+	t.Setenv("KANO_PANE", "p1")
 	if host, _, _, _ := splitHost([]string{"ls"}); host != "" {
 		t.Errorf("inside a pane: %q", host)
 	}
 	if host, _, _, _ := splitHost([]string{"-H", "build", "ls"}); host != "build" {
 		t.Errorf("-H inside a pane: %q", host)
 	}
-	t.Setenv("KERO_PANE", "")
+	t.Setenv("KANO_PANE", "")
 	if !localOnly["hook"] || !localOnly["config"] || localOnly["ls"] {
 		t.Error("localOnly")
 	}
 	onHost = "build"
 	defer func() { onHost = "" }()
-	t.Setenv("KERO_PANE", "p1")
+	t.Setenv("KANO_PANE", "p1")
 	if current() != "" {
 		t.Error("a pane of this machine named on another")
 	}

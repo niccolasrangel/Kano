@@ -11,7 +11,7 @@ import (
 	"time"
 	"unsafe"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
 // reader gives the pane a program that reads n bytes raw, the terminal's

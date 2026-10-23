@@ -8,23 +8,23 @@ import (
 	"strconv"
 	"strings"
 
-	"kero/internal/actions"
-	"kero/internal/adblock"
-	"kero/internal/proto"
-	"kero/internal/remote"
+	"kano/internal/actions"
+	"kano/internal/adblock"
+	"kano/internal/proto"
+	"kano/internal/remote"
 )
 
-// kero's configuration is a file of lines `key = value`, as Ghostty's:
+// kano's configuration is a file of lines `key = value`, as Ghostty's:
 // `#` starts a comment, and keys that hold lists, as env and keybind,
 // repeat. The keys are Ghostty's where they mean what Ghostty's do. A
 // file holds what the user changed; the rest is the defaults. The
 // Settings window edits it in place, keeping its comments and order.
 
-// ConfigPath returns the configuration file: $KERO_CONFIG, else
-// $XDG_CONFIG_HOME/kero/config, else ~/.config/kero/config; kero-dev in
-// place of kero for a development build (proto.Name).
+// ConfigPath returns the configuration file: $KANO_CONFIG, else
+// $XDG_CONFIG_HOME/kano/config, else ~/.config/kano/config; kano-dev in
+// place of kano for a development build (proto.Name).
 func ConfigPath() string {
-	if p := os.Getenv("KERO_CONFIG"); p != "" {
+	if p := os.Getenv("KANO_CONFIG"); p != "" {
 		return p
 	}
 	base := os.Getenv("XDG_CONFIG_HOME")
@@ -104,7 +104,7 @@ func mapChoice(name, doc string, f func(*Settings) *string, file, ours []string)
 }
 
 // keys are the configuration's keys, in the order a new file and
-// `kero config show` list them.
+// `kano config show` list them.
 var keys = []key{
 	mapChoice("new-session-directory", "where a new session starts", func(s *Settings) *string { return &s.NewSessionDir },
 		[]string{"current", "project", "home"}, []string{"current", "project", "home"}),
@@ -112,7 +112,7 @@ var keys = []key{
 		func(s *Settings) *string { return &s.SessionName }, proto.NameFocused, proto.NameLead, proto.NameFolder),
 	boolKey("focus-follows-mouse", "focus the pane the pointer moves into", func(s *Settings) *bool { return &s.FocusFollowsMouse }),
 	boolKey("confirm-close", "ask before closing a pane a program runs in", func(s *Settings) *bool { return &s.ConfirmClose }),
-	boolKey("restore-sessions", "start sessions again after kerod restarts, as after a reboot", func(s *Settings) *bool { return &s.RestoreSessions }),
+	boolKey("restore-sessions", "start sessions again after kanod restarts, as after a reboot", func(s *Settings) *bool { return &s.RestoreSessions }),
 	boolKey("resume-agents", "as sessions start again, resume the conversation of the coding agent each pane ran", func(s *Settings) *bool { return &s.ResumeAgents }),
 
 	choiceKey("window-theme", "the app's appearance", func(s *Settings) *string { return &s.Appearance }, "system", "light", "dark"),
@@ -121,7 +121,7 @@ var keys = []key{
 		[]string{"petal", "mist", "meadow", "dusk", "plain"}, []string{"rex", "mist", "meadow", "dusk", "plain"}),
 	boolKey("window-translucent", "let the desktop show through the window", func(s *Settings) *bool { return &s.Vibrancy }),
 
-	stringKey("font-family", "the terminals' font: empty for JetBrains Mono Nerd Font, which Kero carries; monospace for the system's", func(s *Settings) *string { return &s.FontFamily }),
+	stringKey("font-family", "the terminals' font: empty for JetBrains Mono Nerd Font, which Kano carries; monospace for the system's", func(s *Settings) *string { return &s.FontFamily }),
 	numberKey("font-size", "in points", func(s *Settings) float64 { return float64(s.FontSize) }, func(s *Settings, n float64) { s.FontSize = float32(n) }),
 	numberKey("font-weight", "100 to 900", func(s *Settings) float64 { return float64(s.FontWeight) }, func(s *Settings, n float64) { s.FontWeight = int(n) }),
 	numberKey("line-height", "a multiple of the font's", func(s *Settings) float64 { return float64(s.LineHeight) }, func(s *Settings, n float64) { s.LineHeight = float32(n) }),
@@ -129,7 +129,7 @@ var keys = []key{
 	boolKey("font-thicken", "a heavier stroke, as Ghostty's", func(s *Settings) *bool { return &s.Thicken }),
 	numberKey("minimum-contrast", "the least contrast text keeps with its background, 1 (none) to 21, as Ghostty's", func(s *Settings) float64 { return float64(s.MinContrast) }, func(s *Settings, n float64) { s.MinContrast = float32(min(max(n, 1), 21)) }),
 	boolKey("dim-unfocused-terminals", "fade the terminals you're not in, when a session has several panes", func(s *Settings) *bool { return &s.DimUnfocused }),
-	{name: "theme", doc: "terminal colors: kero, a Ghostty theme, or light:<theme>,dark:<theme>",
+	{name: "theme", doc: "terminal colors: kano, a Ghostty theme, or light:<theme>,dark:<theme>",
 		get: func(s *Settings) []string {
 			if s.LightTheme == s.DarkTheme {
 				return []string{s.LightTheme}
@@ -185,8 +185,8 @@ var keys = []key{
 	boolKey("dock-badge", "the number of sessions that need you", func(s *Settings) *bool { return &s.DockBadge }),
 	boolKey("dock-bounce", "once, when a session comes to need you", func(s *Settings) *bool { return &s.BounceDock }),
 
-	boolKey("remote-control", "kero do, kero focus and kero browser drive the app", func(s *Settings) *bool { return &s.RemoteControl }),
-	{name: "host", doc: "another machine whose sessions the app shows, as name=address: [user@]host or ssh://… over SSH, wsl://distro, http(s)://… for kerod's tailnet listener; add remote-control after it to let its programs drive the app, and color=red, orange, amber, green, teal, blue, purple or pink to mark its sessions; repeat it", list: true,
+	boolKey("remote-control", "kano do, kano focus and kano browser drive the app", func(s *Settings) *bool { return &s.RemoteControl }),
+	{name: "host", doc: "another machine whose sessions the app shows, as name=address: [user@]host or ssh://… over SSH, wsl://distro, http(s)://… for kanod's tailnet listener; add remote-control after it to let its programs drive the app, and color=red, orange, amber, green, teal, blue, purple or pink to mark its sessions; repeat it", list: true,
 		get: func(s *Settings) []string {
 			var out []string
 			for _, h := range s.Hosts {
@@ -220,7 +220,7 @@ var keys = []key{
 			}
 			return nil
 		}},
-	{name: "listen", doc: "let Kero on other machines reach this one's sessions: tailnet://:7373 on its Tailscale addresses, tailnet-serve:// for Tailscale Serve; repeat it", list: true,
+	{name: "listen", doc: "let Kano on other machines reach this one's sessions: tailnet://:7373 on its Tailscale addresses, tailnet-serve:// for Tailscale Serve; repeat it", list: true,
 		get: func(s *Settings) []string { return slices.Clone(s.Listen) },
 		set: func(s *Settings, v []string) error {
 			s.Listen = nil
@@ -248,7 +248,7 @@ var keys = []key{
 			}
 			return nil
 		}},
-	boolKey("remote-updates", "let Kero on another machine that connects update the Kero app here to its version, which restarts it", func(s *Settings) *bool { return &s.RemoteUpdates }),
+	boolKey("remote-updates", "let Kano on another machine that connects update the Kano app here to its version, which restarts it", func(s *Settings) *bool { return &s.RemoteUpdates }),
 	boolKey("git-status", "show the git branch and changes of each session", func(s *Settings) *bool { return &s.GitStatus }),
 	choiceKey("diff-layout", "the changes panel's diffs: unified while the panel is narrow and side by side once it's wide, or always one", func(s *Settings) *string { return &s.DiffLayout }, "auto", "unified", "split"),
 	boolKey("browser-block-ads", "block ads and trackers in browser panes, with the browser-filter-list lists", func(s *Settings) *bool { return &s.BlockAds }),
@@ -277,7 +277,7 @@ var keys = []key{
 			}
 			return nil
 		}},
-	{name: "keybind", doc: "<keys>=<action>, over the defaults, as cmd+shift+d=pane.split.down; <keys>=unbind frees keys; see kero actions", list: true,
+	{name: "keybind", doc: "<keys>=<action>, over the defaults, as cmd+shift+d=pane.split.down; <keys>=unbind frees keys; see kano actions", list: true,
 		get: func(s *Settings) []string {
 			var out []string
 			for _, a := range actions.All {
@@ -470,7 +470,7 @@ func quote(v string) string {
 // format writes s into a configuration, over the file's lines: a key the
 // file sets takes its new values where it is; one the file leaves out is
 // written at the end when it differs from its default. Comments, blank
-// lines and keys kero does not know stay as they are.
+// lines and keys kano does not know stay as they are.
 func format(s Settings, data string) string {
 	def := Default()
 	lines := parseLines(data)
@@ -507,15 +507,15 @@ func format(s Settings, data string) string {
 }
 
 var header = []string{
-	"# Kero's configuration, as Ghostty's: one setting a line, `key = value`.",
-	"# It holds what differs from the defaults. Kero's Settings window edits",
+	"# Kano's configuration, as Ghostty's: one setting a line, `key = value`.",
+	"# It holds what differs from the defaults. Kano's Settings window edits",
 	"# it in place, keeping your comments; what you save here applies at once.",
-	"# `kero config show` lists every key, with its default.",
+	"# `kano config show` lists every key, with its default.",
 	"",
 }
 
 // Reference writes every key with its value in s, and what it does, as
-// `kero config show` prints it.
+// `kano config show` prints it.
 func Reference(s Settings) string {
 	var b strings.Builder
 	for _, k := range keys {

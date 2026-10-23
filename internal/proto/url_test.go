@@ -5,7 +5,7 @@ import "testing"
 func TestBrowserURL(t *testing.T) {
 	for in, want := range map[string]string{
 		"":                        BlankURL,
-		"  https://kero.sh/docs ": "https://kero.sh/docs",
+		"  https://kano.sh/docs ": "https://kano.sh/docs",
 		"about:blank":             "about:blank",
 		"file:///tmp/a.html":      "file:///tmp/a.html",
 		"localhost:3000":          "http://localhost:3000",
@@ -15,8 +15,8 @@ func TestBrowserURL(t *testing.T) {
 		"[::1]:8080":              "http://[::1]:8080",
 		"app.localhost:3000":      "http://app.localhost:3000",
 		"192.168.1.20:8000":       "http://192.168.1.20:8000",
-		"kero.sh":                 "https://kero.sh",
-		"github.com/egoist/kero":  "https://github.com/egoist/kero",
+		"kano.sh":                 "https://kano.sh",
+		"github.com/YOUR_GITHUB_USERNAME/kano":  "https://github.com/YOUR_GITHUB_USERNAME/kano",
 		"how to quit vim":         "https://www.google.com/search?q=how+to+quit+vim",
 		"golang":                  "https://www.google.com/search?q=golang",
 	} {
@@ -39,7 +39,7 @@ func TestBrowserPaneName(t *testing.T) {
 
 func TestIsAddress(t *testing.T) {
 	for in, want := range map[string]bool{
-		"localhost:3000": true, " kero.sh ": true, "https://x": true, "about:blank": true,
+		"localhost:3000": true, " kano.sh ": true, "https://x": true, "about:blank": true,
 		"": false, "split right": false, "settings": false,
 	} {
 		if got := IsAddress(in); got != want {

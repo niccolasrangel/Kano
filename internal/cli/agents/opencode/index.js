@@ -1,18 +1,18 @@
-// Installed by Kero (`kero skill setup`), which replaces it as Kero
-// updates; `kero skill remove` removes it. OpenCode's service runs this
-// for every terminal: it tells the agent of a session that runs in a Kero
+// Installed by Kano (`kano skill setup`), which replaces it as Kano
+// updates; `kano skill remove` removes it. OpenCode's service runs this
+// for every terminal: it tells the agent of a session that runs in a Kano
 // pane which session and pane it runs in, as the pane's terminal plugin
-// (tui.js) told Kero.
+// (tui.js) told Kano.
 import { execFile } from "node:child_process"
 
-const KERO = __KERO__
+const KANO = __KANO__
 
-// lookup asks Kero what to tell a session's agent; wait gives its pane a
-// moment to tell Kero the session, as when the session was just made.
+// lookup asks Kano what to tell a session's agent; wait gives its pane a
+// moment to tell Kano the session, as when the session was just made.
 function lookup(sessionID, wait) {
   return new Promise((resolve) => {
     const args = ["hook", "context", "opencode", sessionID, ...(wait ? ["wait"] : [])]
-    const child = execFile(KERO, args, { timeout: 5000 }, (err, stdout) => {
+    const child = execFile(KANO, args, { timeout: 5000 }, (err, stdout) => {
       resolve(err ? "" : stdout.trim())
     })
     child.on("error", () => resolve(""))
@@ -20,9 +20,9 @@ function lookup(sessionID, wait) {
 }
 
 export default {
-  id: "kero",
+  id: "kano",
   async setup(ctx) {
-    // What each session is told, once Kero knows it; a session it doesn't
+    // What each session is told, once Kano knows it; a session it doesn't
     // know is asked about a few times, as its pane may not have told yet.
     const known = new Map()
     await ctx.session.hook("context", async (event) => {

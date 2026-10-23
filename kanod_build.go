@@ -15,18 +15,18 @@ import (
 
 	"github.com/egoist/mygo"
 
-	"kero/internal/build"
+	"kano/internal/build"
 )
 
-// kerodSource is the code of Kero's packages that kerod runs (go list
-// -deps ./internal/daemon), which TestKerodSource keeps whole.
+// kanodSource is the code of Kano's packages that kanod runs (go list
+// -deps ./internal/daemon), which TestKanodSource keeps whole.
 //
 //go:embed internal/actions internal/adblock internal/build internal/clilink internal/daemon internal/detach internal/detect internal/git internal/proto internal/remote internal/settings internal/shell internal/tailscale internal/update
-var kerodSource embed.FS
+var kanodSource embed.FS
 
-// kerodModules are the other modules whose code kerod runs, which
-// TestKerodSource keeps whole too.
-var kerodModules = []string{
+// kanodModules are the other modules whose code kanod runs, which
+// TestKanodSource keeps whole too.
+var kanodModules = []string{
 	"github.com/BurntSushi/toml",
 	"github.com/coder/websocket",
 	"github.com/ebitengine/purego",
@@ -39,15 +39,15 @@ var kerodModules = []string{
 	"golang.org/x/text",
 }
 
-func init() { build.Daemon = kerodBuild() }
+func init() { build.Daemon = kanodBuild() }
 
-// kerodBuild fingerprints the code kerod runs on this platform: its
+// kanodBuild fingerprints the code kanod runs on this platform: its
 // packages' files, less tests and files of other platforms, the versions
 // of its modules, and Go's.
-func kerodBuild() string {
+func kanodBuild() string {
 	h := sha256.New()
 	fmt.Fprintln(h, runtime.Version())
-	fs.WalkDir(kerodSource, ".", func(p string, d fs.DirEntry, err error) error {
+	fs.WalkDir(kanodSource, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -57,7 +57,7 @@ func kerodBuild() string {
 			}
 			return nil
 		}
-		b, err := kerodSource.ReadFile(p)
+		b, err := kanodSource.ReadFile(p)
 		if err != nil || !builds(p, b) {
 			return err
 		}
@@ -67,7 +67,7 @@ func kerodBuild() string {
 	})
 	if bi, ok := debug.ReadBuildInfo(); ok {
 		for _, m := range bi.Deps {
-			if slices.Contains(kerodModules, m.Path) {
+			if slices.Contains(kanodModules, m.Path) {
 				if m.Replace != nil {
 					m = m.Replace
 				}
@@ -85,7 +85,7 @@ var (
 	unixGoos = []string{"aix", "android", "darwin", "dragonfly", "freebsd", "illumos", "ios", "linux", "netbsd", "openbsd", "solaris"}
 )
 
-// builds reports whether a file of kerodSource is code built on this
+// builds reports whether a file of kanodSource is code built on this
 // platform: no test, and of no other platform by its name or its
 // constraint. Files that are no Go count, as code may embed them.
 func builds(p string, b []byte) bool {
@@ -119,11 +119,11 @@ func builds(p string, b []byte) bool {
 	return true
 }
 
-// kerodStale reports whether kerod, of the version and fingerprint its
+// kanodStale reports whether kanod, of the version and fingerprint its
 // Welcome tells, runs other code than this app's, as after an update that
-// changed it: an earlier kerod, which tells no fingerprint, of another
+// changed it: an earlier kanod, which tells no fingerprint, of another
 // version.
-func kerodStale(app, fp string) bool {
+func kanodStale(app, fp string) bool {
 	if fp != "" {
 		return fp != build.Daemon
 	}

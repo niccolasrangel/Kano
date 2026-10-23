@@ -24,21 +24,21 @@ export const latestVersion = createServerFn().handler(async () => {
 
 const copy = {
   en: {
-    title: 'Download | Kero',
-    description: 'Download Kero, a terminal for coding agents, for macOS, Windows and Linux.',
-    heading: 'Download Kero',
+    title: 'Download | Kano',
+    description: 'Download Kano, a terminal for coding agents, for macOS, Windows and Linux.',
+    heading: 'Download Kano',
     lead: 'For macOS, Windows and Linux.',
     notes: (v: string) => `${v} release notes`,
     yours: 'Your system',
     platformNotes: {
-      mac: 'Open the disk image and drag Kero into your Applications folder.',
-      windows: 'Run the installer, which needs no administrator rights. Kero needs Windows 10 1809 or later.',
-      linux: 'Install the package, or run the script to install Kero in ~/.local without root.',
+      mac: 'Open the disk image and drag Kano into your Applications folder.',
+      windows: 'Run the installer, which needs no administrator rights. Kano needs Windows 10 1809 or later.',
+      linux: 'Install the package, or run the script to install Kano in ~/.local without root.',
     },
     cliTitle: 'Then, Meet the CLI',
     cli: () => (
       <>
-        Choose <strong>Kero › Install Command Line Tool…</strong> to put <code>kero</code> on your PATH, and let your
+        Choose <strong>Kano › Install Command Line Tool…</strong> to put <code>kano</code> on your PATH, and let your
         agents drive it.
       </>
     ),
@@ -46,21 +46,21 @@ const copy = {
     allReleases: 'All Releases',
   },
   zh: {
-    title: '下载 | Kero',
-    description: '下载 Kero，为编程智能体打造的终端，支持 macOS、Windows 和 Linux。',
-    heading: '下载 Kero',
+    title: '下载 | Kano',
+    description: '下载 Kano，为编程智能体打造的终端，支持 macOS、Windows 和 Linux。',
+    heading: '下载 Kano',
     lead: '支持 macOS、Windows 和 Linux。',
     notes: (v: string) => `${v} 更新说明`,
     yours: '你的系统',
     platformNotes: {
-      mac: '打开磁盘映像，把 Kero 拖进“应用程序”文件夹。',
-      windows: '运行安装程序，无需管理员权限。Kero 需要 Windows 10 1809 或更高版本。',
-      linux: '安装软件包，或运行脚本把 Kero 装到 ~/.local，无需 root。',
+      mac: '打开磁盘映像，把 Kano 拖进“应用程序”文件夹。',
+      windows: '运行安装程序，无需管理员权限。Kano 需要 Windows 10 1809 或更高版本。',
+      linux: '安装软件包，或运行脚本把 Kano 装到 ~/.local，无需 root。',
     },
     cliTitle: '然后，认识一下命令行',
     cli: () => (
       <>
-        选择 <strong>Kero › 安装命令行工具…</strong>，把 <code>kero</code> 加入 PATH，让你的智能体来驱动它。
+        选择 <strong>Kano › 安装命令行工具…</strong>，把 <code>kano</code> 加入 PATH，让你的智能体来驱动它。
       </>
     ),
     quickStart: '快速上手',
@@ -90,8 +90,8 @@ const platforms: {
     name: 'macOS',
     icon: AppleIcon,
     files: [
-      { label: 'Apple Silicon', kind: '.dmg', arch: 'arm', asset: (v) => `Kero.${v}.arm64.dmg` },
-      { label: 'Intel', kind: '.dmg', arch: 'x86', asset: (v) => `Kero.${v}.amd64.dmg` },
+      { label: 'Apple Silicon', kind: '.dmg', arch: 'arm', asset: (v) => `Kano.${v}.arm64.dmg` },
+      { label: 'Intel', kind: '.dmg', arch: 'x86', asset: (v) => `Kano.${v}.amd64.dmg` },
     ],
   },
   {
@@ -99,8 +99,8 @@ const platforms: {
     name: 'Windows',
     icon: WindowsIcon,
     files: [
-      { label: 'x64', kind: '.exe', arch: 'x86', asset: (v) => `Kero.Setup.${v}.amd64.exe` },
-      { label: 'ARM64', kind: '.exe', arch: 'arm', asset: (v) => `Kero.Setup.${v}.arm64.exe` },
+      { label: 'x64', kind: '.exe', arch: 'x86', asset: (v) => `Kano.Setup.${v}.amd64.exe` },
+      { label: 'ARM64', kind: '.exe', arch: 'arm', asset: (v) => `Kano.Setup.${v}.arm64.exe` },
     ],
   },
   {
@@ -108,8 +108,8 @@ const platforms: {
     name: 'Linux',
     icon: LinuxIcon,
     files: [
-      { label: 'x64', kind: '.deb', arch: 'x86', asset: (v) => `kero_${v}_amd64.deb` },
-      { label: 'ARM64', kind: '.deb', arch: 'arm', asset: (v) => `kero_${v}_arm64.deb` },
+      { label: 'x64', kind: '.deb', arch: 'x86', asset: (v) => `kano_${v}_amd64.deb` },
+      { label: 'ARM64', kind: '.deb', arch: 'arm', asset: (v) => `kano_${v}_arm64.deb` },
     ],
   },
 ];

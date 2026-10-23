@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
 func TestScannerAcrossReads(t *testing.T) {

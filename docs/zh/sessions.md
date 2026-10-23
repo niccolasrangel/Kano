@@ -1,11 +1,11 @@
 ---
 title: 会话与项目
-description: Kero 如何按项目组织终端会话，并让它们在 kerod 中持续运行。
+description: Kano 如何按项目组织终端会话，并让它们在 kanod 中持续运行。
 ---
 
 # 会话与项目
 
-Kero 将你的工作分为两层：项目（文件夹）包含会话（任务），每个会话都在 kerod 中持续运行，直到你关闭它。
+Kano 将你的工作分为两层：项目（文件夹）包含会话（任务），每个会话都在 kanod 中持续运行，直到你关闭它。
 
 ## 会话
 
@@ -42,24 +42,24 @@ Kero 将你的工作分为两层：项目（文件夹）包含会话（任务）
 
 ## 项目
 
-**项目**就是一个文件夹。Kero 在边栏中将会话归到各自的项目下。用 <kbd>⌘</kbd> <kbd>O</kbd> 打开项目，或者让 `kero new` 根据会话的启动目录自动选择。
+**项目**就是一个文件夹。Kano 在边栏中将会话归到各自的项目下。用 <kbd>⌘</kbd> <kbd>O</kbd> 打开项目，或者让 `kano new` 根据会话的启动目录自动选择。
 
 ```sh
-kero projects            # 列出项目
-kero new -p my-app       # 按名称在某个项目中新建会话
+kano projects            # 列出项目
+kano new -p my-app       # 按名称在某个项目中新建会话
 ```
 
-## kerod
+## kanod
 
-会话运行在 **kerod** 中，这是一个由 app 按需启动的守护进程。Kero 只是 kerod 的一扇窗口：
+会话运行在 **kanod** 中，这是一个由 app 按需启动的守护进程。Kano 只是 kanod 的一扇窗口：
 
-- 退出 Kero 后，所有会话仍在运行。
-- 再次打开 Kero，所有会话都保持原样，回滚缓冲也在。
-- kerod 自身重启之后（比如重启电脑后），Kero 会在原来的目录中重新启动你的会话。设置 `restore-sessions = false` 可以关闭这一行为。
-- 为某个智能体设置好 [Kero 的技能](./agents.md#install-the-skill)后，原先运行 Claude Code、Codex、Pi 或 OpenCode 的窗格会接着之前的对话继续，效果与智能体自带的恢复选项相同。其他程序不会擅自重新启动：它们的窗格会回到 shell。设置 `resume-agents = false` 可以关闭这一行为。
+- 退出 Kano 后，所有会话仍在运行。
+- 再次打开 Kano，所有会话都保持原样，回滚缓冲也在。
+- kanod 自身重启之后（比如重启电脑后），Kano 会在原来的目录中重新启动你的会话。设置 `restore-sessions = false` 可以关闭这一行为。
+- 为某个智能体设置好 [Kano 的技能](./agents.md#install-the-skill)后，原先运行 Claude Code、Codex、Pi 或 OpenCode 的窗格会接着之前的对话继续，效果与智能体自带的恢复选项相同。其他程序不会擅自重新启动：它们的窗格会回到 shell。设置 `resume-agents = false` 可以关闭这一行为。
 
 ```sh
-kero daemon status       # kerod 是否在运行？
-kero daemon restart      # 重启它（会话会重新启动）
-kero daemon stop         # 停止它，并结束所有会话
+kano daemon status       # kanod 是否在运行？
+kano daemon restart      # 重启它（会话会重新启动）
+kano daemon stop         # 停止它，并结束所有会话
 ```

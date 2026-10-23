@@ -20,7 +20,7 @@ type Env = { zh?: boolean };
 export function markdown(): Plugin {
   let md: Promise<MarkdownExit> | undefined;
   return {
-    name: 'kero-markdown',
+    name: 'kano-markdown',
     enforce: 'pre',
     async transform(source, id) {
       if (!id.startsWith(docsDir) || !id.endsWith('.md')) return;

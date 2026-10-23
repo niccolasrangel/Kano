@@ -9,15 +9,31 @@ import (
 // Surfaces stand out by their color and an edge, crisp, on whole pixels.
 // In the light, the edge is a small soft shadow and no line; in the dark,
 // where shadows hardly show, a hairline a little lighter than the
-// surface, over a dark shadow, as a lit edge. These are kero's levels.
+// surface, over a dark shadow, as a lit edge. These are kano's levels.
 
-// raised lifts a surface off what is under it a little: the card, the
-// selected row, buttons.
+// raised lifts a surface off what is under it a little: the selected row,
+// buttons.
 func raised(e ui.Element, pal *palette) ui.Element {
 	if pal.dark {
 		return darkShadow(litEdge(e, pal))
 	}
 	return e.Shadow(0, 1, 2, 0, pal.cardShadow).Shadow(0, 1, 6, 0, pal.cardShadow2)
+}
+
+// cardSurface lifts a card off what is under it: as raised, a touch fainter
+// of edge and lighter of shadow, a card being large enough that a control's
+// edge reads as a border along its side.
+func cardSurface(e ui.Element, pal *palette) ui.Element {
+	if pal.dark {
+		return e.Border(1, pal.text.Alpha(0.09)).
+			BorderLinearGradient(ui.LinearGradient{
+				Angle: 180, From: pal.text.Alpha(0.13), To: pal.text.Alpha(0.045),
+			}).
+			Shadow(0, 1, 1, 0, ui.RGBA(0, 0, 0, 0.16)).
+			Shadow(0, 2, 3, -1, ui.RGBA(0, 0, 0, 0.14)).
+			Shadow(0, 3, 5, -2, ui.RGBA(0, 0, 0, 0.16))
+	}
+	return e.Shadow(0, 1, 2, 0, ui.RGBA(0, 0, 0, 0.05)).Shadow(0, 1, 4, 0, ui.RGBA(0, 0, 0, 0.025))
 }
 
 // chosen lifts the chosen row of a list, the sidebars', a hair: an even
@@ -78,7 +94,7 @@ func face(e ui.Element, pal *palette, bg ui.Color) ui.Element {
 	return darkShadow(litEdge(e, pal))
 }
 
-// button is kero's button: a raised surface, or the accent's for the
+// button is kano's button: a raised surface, or the accent's for the
 // primary one, with a label and, optionally, its keys.
 func button(c *ui.Context, key, label, keys string, primary bool, pal *palette) bool {
 	return sizedButton(c, key, label, keys, primary, 30, 8, pal)
@@ -114,7 +130,7 @@ func sizedButton(c *ui.Context, key, label, keys string, primary bool, height, r
 	return b.Clicked()
 }
 
-// borderless returns the theme with kero's look: its accent, and no lines
+// borderless returns the theme with kano's look: its accent, and no lines
 // around controls, which stand out by their fill: white fields and
 // buttons on soft panels.
 func borderless(c *ui.Context, pal *palette) *ui.Theme {
@@ -128,7 +144,7 @@ func borderless(c *ui.Context, pal *palette) *ui.Theme {
 	return &t
 }
 
-// toggle is kero's switch: a track that shows on and off alike, the
+// toggle is kano's switch: a track that shows on and off alike, the
 // accent's when on, with a knob that springs across. It returns the
 // switch, for OnChange.
 func toggle(c *ui.Context, on *bool, pal *palette) ui.Element {

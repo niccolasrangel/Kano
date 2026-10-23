@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"kero/internal/git"
-	"kero/internal/proto"
+	"kano/internal/git"
+	"kano/internal/proto"
 )
 
 // A pane in a repository has its branch and changes, which stay the same

@@ -7,85 +7,85 @@ import (
 	"slices"
 	"strings"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
-// skillGuide teaches a coding agent kero: the skill `kero skill setup`
-// installs, from this binary, so that it follows kero's updates.
+// skillGuide teaches a coding agent kano: the skill `kano skill setup`
+// installs, from this binary, so that it follows kano's updates.
 const skillGuide = `---
-name: kero
-description: Drive terminal sessions in Kero — start agents and commands in their own sessions or panes, type into them, wait for them, read their screens, and report your own status. Use when running inside Kero ($KERO_PANE is set) and the task needs another terminal, a long-running process, a parallel agent, or the user's attention.
+name: kano
+description: Drive terminal sessions in Kano — start agents and commands in their own sessions or panes, type into them, wait for them, read their screens, and report your own status. Use when running inside Kano ($KANO_PANE is set) and the task needs another terminal, a long-running process, a parallel agent, or the user's attention.
 ---
 
-# Kero
+# Kano
 
-You run inside Kero, a terminal whose sessions keep running in the
-background. $KERO_SESSION is your session and $KERO_PANE your pane; the
-` + "`kero`" + ` command drives them. A target is a session or a pane id (a
+You run inside Kano, a terminal whose sessions keep running in the
+background. $KANO_SESSION is your session and $KANO_PANE your pane; the
+` + "`kano`" + ` command drives them. A target is a session or a pane id (a
 prefix works), or a session's name; a session stands for its focused pane.
 
 ## Run something beside you
 
-    kero split --down -- npm run dev          # a pane under yours; prints its id
-    kero new -n review -- claude              # a session of its own
-    kero new -n tests -d ~/code/app -- go test ./...
-    kero split --url localhost:3000           # a browser pane, to show the user a page
+    kano split --down -- npm run dev          # a pane under yours; prints its id
+    kano new -n review -- claude              # a session of its own
+    kano new -n tests -d ~/code/app -- go test ./...
+    kano split --url localhost:3000           # a browser pane, to show the user a page
 
 ## Drive it
 
-    kero send <target> "some text" --enter    # type, then press Enter
-    kero key <target> ctrl+c                  # enter, escape, up, tab, ctrl+d…
-    kero prompt <target> "run the tests"      # send + Enter, wait, print screen
-    kero wait <target> [--for idle,waiting,error,exited] [--timeout 10m]
-    kero wait <target> --exit                 # until its command ends; exits with its status
-    kero read <target> [-n 40] [-a]           # the screen, or with scrollback
-    kero status <target> --json               # status, program, directory
-    kero ls                                   # every session and pane
+    kano send <target> "some text" --enter    # type, then press Enter
+    kano key <target> ctrl+c                  # enter, escape, up, tab, ctrl+d…
+    kano prompt <target> "run the tests"      # send + Enter, wait, print screen
+    kano wait <target> [--for idle,waiting,error,exited] [--timeout 10m]
+    kano wait <target> --exit                 # until its command ends; exits with its status
+    kano read <target> [-n 40] [-a]           # the screen, or with scrollback
+    kano status <target> --json               # status, program, directory
+    kano ls                                   # every session and pane
 
 A pane's status is working, waiting (it needs the user), idle, error or
-exited. ` + "`kero wait`" + ` with no --for waits until it stops working. A
+exited. ` + "`kano wait`" + ` with no --for waits until it stops working. A
 command such as a test run doesn't show as working: wait for it with --exit,
 or start it with --wait, which exits with the command's status:
 
-    pane=$(kero split --down -- go test ./...)
-    kero wait "$pane" --exit || kero read "$pane" -n 80
-    kero split --down --wait -- make build    # the same, in one step
+    pane=$(kano split --down -- go test ./...)
+    kano wait "$pane" --exit || kano read "$pane" -n 80
+    kano split --down --wait -- make build    # the same, in one step
 
 ## Use a web page
 
 A browser pane's page is yours to drive, as a user would, to check what
-you built: open it with kero split --url, then
+you built: open it with kano split --url, then
 
-    kero browser open localhost:3000/todos     # go to a page, wait for it to load
-    kero browser type '#new-todo' "Buy milk"   # fill a field (--enter submits)
-    kero browser click 'button[type=submit]'   # click an element (CSS selector)
-    kero browser wait --text "Welcome"         # or wait <selector>; --timeout 30s
-    kero browser text [selector]               # the page's text, or an element's
-    kero browser html [selector]
-    kero browser eval 'document.title'         # run JavaScript, print its value
-    kero browser screenshot -o /tmp/page.png   # the pane must be on screen
-    kero browser back|forward|reload
+    kano browser open localhost:3000/todos     # go to a page, wait for it to load
+    kano browser type '#new-todo' "Buy milk"   # fill a field (--enter submits)
+    kano browser click 'button[type=submit]'   # click an element (CSS selector)
+    kano browser wait --text "Welcome"         # or wait <selector>; --timeout 30s
+    kano browser text [selector]               # the page's text, or an element's
+    kano browser html [selector]
+    kano browser eval 'document.title'         # run JavaScript, print its value
+    kano browser screenshot -o /tmp/page.png   # the pane must be on screen
+    kano browser back|forward|reload
 
-With no target, kero browser drives your session's browser pane; name
-one (kero browser <target> text) when there are several. It needs the app
+With no target, kano browser drives your session's browser pane; name
+one (kano browser <target> text) when there are several. It needs the app
 open and Remote Control on, in Settings › Agents.
 
 ## Tell the user
 
-    kero report working "Migrating the database" --progress 40
-    kero report blocked "Approve the production deploy?" --kind permission
-    kero report done "Deployed to staging"
-    kero notify "Need your API key to continue"
+    kano report working "Migrating the database" --progress 40
+    kano report blocked "Approve the production deploy?" --kind permission
+    kano report done "Deployed to staging"
+    kano notify "Need your API key to continue"
 
-Reports are OSC 7501 sequences: Kero shows them in its sidebar, and
+Reports are OSC 7501 sequences: Kano shows them in its sidebar, and
 notifies the user when you are blocked or done while they look elsewhere.
 Report blocked only when you truly cannot go on without them.
 
 ## Etiquette
 
-- Close what you started when it is done: ` + "`kero close <target>`" + `.
+- Close what you started when it is done: ` + "`kano close <target>`" + `.
 - Never type into a pane you did not start unless the user asked.
-- Exit status 3 means no such target, 4 that Kero is not running.
+- Exit status 3 means no such target, 4 that Kano is not running.
 `
 
 func skillCmd(args []string) error {
@@ -146,7 +146,7 @@ func skillCmd(args []string) error {
 			}
 		}
 		if sub == "setup" && !f.set["dry"] && len(hooks) > 0 {
-			fmt.Println("\nAgents started from now on in Kero learn which session they're in.")
+			fmt.Println("\nAgents started from now on in Kano learn which session they're in.")
 			for _, h := range hooks {
 				if note := map[string]string{
 					"claude":   "Claude Code runs hooks only in folders you trust.",
@@ -159,7 +159,7 @@ func skillCmd(args []string) error {
 		}
 		return nil
 	}
-	return usageErr("kero skill setup|show|status|remove [--agent claude|codex|pi|opencode|agents] [--dry-run]")
+	return usageErr("kano skill setup|show|status|remove [--agent claude|codex|pi|opencode|agents] [--dry-run]")
 }
 
 func sortedKeys(m map[string]string) []string {
@@ -208,8 +208,8 @@ func skillDirs(agent string) map[string]string {
 		claude = filepath.Join(home, ".claude")
 	}
 	all := map[string]string{
-		"claude": filepath.Join(claude, "skills", "kero"),
-		"agents": filepath.Join(home, ".agents", "skills", "kero"),
+		"claude": filepath.Join(claude, "skills", "kano"),
+		"agents": filepath.Join(home, ".agents", "skills", "kano"),
 	}
 	if agent = strings.ToLower(agent); agent != "" {
 		if d, ok := all[agent]; ok {
@@ -230,7 +230,7 @@ type SkillState struct {
 	State string // "current", "outdated" (or partly installed) or "missing"
 }
 
-// SkillStates returns the state of kero's skill and hooks for each kind
+// SkillStates returns the state of kano's skill and hooks for each kind
 // of agent.
 func SkillStates() []SkillState {
 	var out []SkillState
@@ -252,7 +252,7 @@ func SkillStates() []SkillState {
 	return out
 }
 
-// InstallSkill installs, or updates, kero's skill and hooks for a kind of
+// InstallSkill installs, or updates, kano's skill and hooks for a kind of
 // agent.
 func InstallSkill(agent string) error {
 	dir := skillDirs(agent)[agent]
@@ -270,7 +270,7 @@ func InstallSkill(agent string) error {
 	return nil
 }
 
-// RemoveSkill removes kero's skill and hooks for a kind of agent.
+// RemoveSkill removes kano's skill and hooks for a kind of agent.
 func RemoveSkill(agent string) error {
 	dir := skillDirs(agent)[agent]
 	if dir == "" {

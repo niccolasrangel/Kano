@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
 func testDaemon(t *testing.T) *Daemon {
 	t.Helper()
-	t.Setenv("KERO_CONFIG", filepath.Join(t.TempDir(), "config"))
+	t.Setenv("KANO_CONFIG", filepath.Join(t.TempDir(), "config"))
 	d := &Daemon{dir: t.TempDir(), log: log.New(io.Discard, "", 0), panes: map[string]*pane{},
 		changeCh: make(chan struct{}, 1), saveCh: make(chan struct{}, 1)}
 	d.viewed.Store(new(string))
@@ -77,7 +77,7 @@ func TestBrowserPane(t *testing.T) {
 
 	// A terminal's pane has no page to set.
 	tp := testPane(t)
-	if tp.setPage("https://kero.sh", "") == nil {
+	if tp.setPage("https://kano.sh", "") == nil {
 		t.Error("set a terminal's page")
 	}
 }

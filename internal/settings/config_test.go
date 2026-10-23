@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"kero/internal/actions"
+	"kano/internal/actions"
 )
 
 func TestFormatKeepsTheUsersFile(t *testing.T) {
-	file := `# my kero
+	file := `# my kano
 font-size = 14
 
 # colors
@@ -34,7 +34,7 @@ env = B=2
 	s.Env = []string{"C=3"}
 	s.CursorBlink = false
 	out := format(s, file)
-	want := `# my kero
+	want := `# my kano
 font-size = 15
 
 # colors
@@ -113,7 +113,7 @@ func TestBadValuesKeepDefaults(t *testing.T) {
 	}
 }
 
-// Kero elsewhere updates the app here only once the user lets it.
+// Kano elsewhere updates the app here only once the user lets it.
 func TestRemoteUpdatesOptIn(t *testing.T) {
 	if Default().RemoteUpdates {
 		t.Error("remote updates are on by default")
@@ -126,8 +126,8 @@ func TestRemoteUpdatesOptIn(t *testing.T) {
 
 func TestMigratesSettingsJSON(t *testing.T) {
 	dir := t.TempDir()
-	t.Setenv("KERO_HOME", dir)
-	t.Setenv("KERO_CONFIG", filepath.Join(dir, "config", "kero", "config"))
+	t.Setenv("KANO_HOME", dir)
+	t.Setenv("KANO_CONFIG", filepath.Join(dir, "config", "kano", "config"))
 	os.WriteFile(filepath.Join(dir, "settings.json"), []byte(`{"fontSize": 16, "appearance": "dark", "background": "rex"}`), 0o600)
 	mu.Lock()
 	cache = nil

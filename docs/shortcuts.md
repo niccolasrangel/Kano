@@ -1,15 +1,15 @@
 ---
 title: Keyboard Shortcuts
-description: Kero's default keyboard shortcuts and the action ids to rebind them.
+description: Kano's default keyboard shortcuts and the action ids to rebind them.
 ---
 
 # Keyboard Shortcuts
 
 Rebind any of these in **Settings › Keyboard**, or with `keybind` in the [configuration file](./configuration.md#keyboard).
 
-On Windows and Linux, <kbd>Ctrl</kbd> with a letter belongs to the shell (<kbd>Ctrl</kbd> <kbd>D</kbd>, <kbd>Ctrl</kbd> <kbd>R</kbd>, <kbd>Ctrl</kbd> <kbd>W</kbd>…), so Kero's shortcuts add <kbd>Shift</kbd>, as Windows Terminal's do, or use <kbd>Alt</kbd>. A dash means the action has no shortcut there.
+On Windows and Linux, <kbd>Ctrl</kbd> with a letter belongs to the shell (<kbd>Ctrl</kbd> <kbd>D</kbd>, <kbd>Ctrl</kbd> <kbd>R</kbd>, <kbd>Ctrl</kbd> <kbd>W</kbd>…), so Kano's shortcuts add <kbd>Shift</kbd>, as Windows Terminal's do, or use <kbd>Alt</kbd>. A dash means the action has no shortcut there.
 
-## Kero
+## Kano
 
 | Action                       | macOS                                  | Windows & Linux                               | Action id        |
 | ---------------------------- | -------------------------------------- | --------------------------------------------- | ---------------- |

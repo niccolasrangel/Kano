@@ -17,15 +17,15 @@ import (
 	"github.com/coder/websocket"
 	"github.com/egoist/mygo"
 
-	"kero/internal/build"
-	"kero/internal/proto"
-	"kero/internal/remote"
-	"kero/internal/settings"
-	"kero/internal/tailscale"
-	"kero/internal/update"
+	"kano/internal/build"
+	"kano/internal/proto"
+	"kano/internal/remote"
+	"kano/internal/settings"
+	"kano/internal/tailscale"
+	"kano/internal/update"
 )
 
-// listeners are kerod's network listeners (Options.Listen, else the
+// listeners are kanod's network listeners (Options.Listen, else the
 // configuration's listen key, which they follow as it changes), which
 // take remote connections as WebSockets (remote.MuxPath), each from a
 // caller Tailscale tells, and only from those the machine's owner allows:
@@ -92,9 +92,9 @@ func (l *listeners) follow(last settings.Settings) {
 }
 
 // set makes the listeners those of specs, stopping the others, and lets
-// in whom allow says. Once kerod has started, a Tailscale Serve socket
-// waits for the next kerod: the umask it takes would be any program's
-// kerod started meanwhile (see Run).
+// in whom allow says. Once kanod has started, a Tailscale Serve socket
+// waits for the next kanod: the umask it takes would be any program's
+// kanod started meanwhile (see Run).
 func (l *listeners) set(specs, allow []string, boot bool) {
 	want := map[string]remote.Listen{}
 	for _, s := range specs {
@@ -107,7 +107,7 @@ func (l *listeners) set(specs, allow []string, boot bool) {
 	}
 	var serve []*listener
 	defer func() {
-		// At once, before kerod starts any program.
+		// At once, before kanod starts any program.
 		for _, ln := range serve {
 			l.serve(ln)
 		}
@@ -138,12 +138,12 @@ func (l *listeners) set(specs, allow []string, boot bool) {
 		case boot:
 			serve = append(serve, ln)
 		default:
-			l.d.log.Printf("listen %s: restart kerod to listen there (kero daemon restart)", name)
+			l.d.log.Printf("listen %s: restart kanod to listen there (kano daemon restart)", name)
 		}
 	}
 }
 
-// active reports whether kerod listens on the network, for remote clients
+// active reports whether kanod listens on the network, for remote clients
 // to find it there: it then never exits for being idle.
 func (l *listeners) active() bool {
 	if l == nil {
@@ -192,7 +192,7 @@ func (l *listeners) start(lis *listener, ln net.Listener, via string) bool {
 }
 
 // tailnet listens on the machine's Tailscale addresses, once Tailscale is
-// up: kerod may start before it, as at boot.
+// up: kanod may start before it, as at boot.
 func (l *listeners) tailnet(lis *listener) {
 	logged := false
 	for {
@@ -269,7 +269,7 @@ func (l *listeners) selfStatus(ctx context.Context) tailscale.Self {
 // local reports whether a connection comes from this machine: from a
 // loopback address, or from one of its own Tailscale addresses, as any
 // process of any user here can connect from, which tailscaled would take
-// for the machine's owner. Such connections go through kerod's socket,
+// for the machine's owner. Such connections go through kanod's socket,
 // which tells its users apart.
 func (l *listeners) local(ctx context.Context, ip netip.Addr) bool {
 	if l.isLocal != nil {
@@ -318,7 +318,7 @@ func (l *listeners) identify(r *http.Request, via string) (tailscale.Who, error)
 			return who, err
 		}
 		if l.local(ctx, ap.Addr()) {
-			return who, errors.New("a connection from this machine itself goes through kerod's socket, not the tailnet")
+			return who, errors.New("a connection from this machine itself goes through kanod's socket, not the tailnet")
 		}
 		w, err := l.whois(ctx, r.RemoteAddr)
 		if err != nil {
@@ -328,7 +328,7 @@ func (l *listeners) identify(r *http.Request, via string) (tailscale.Who, error)
 	case "tailnet-serve":
 		// Funnel's are the internet's, whom Tailscale tells nothing of.
 		if r.Header.Get("Tailscale-Funnel-Request") != "" {
-			return who, errors.New("Kero takes no connections through Funnel")
+			return who, errors.New("Kano takes no connections through Funnel")
 		}
 		who = tailscale.Who{Login: r.Header.Get("Tailscale-User-Login"), Name: r.Header.Get("Tailscale-User-Name")}
 		if who.Login == "" {
@@ -349,11 +349,11 @@ func (l *listeners) identify(r *http.Request, via string) (tailscale.Who, error)
 func (l *listeners) handler(ctx context.Context, via string) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc(remote.MuxPath, func(w http.ResponseWriter, r *http.Request) {
-		// Only Kero: a browser sends an Origin with every WebSocket, and
-		// cannot send Kero's header, so that no web page on the tailnet
-		// reaches kerod through the browser of someone it lets in.
+		// Only Kano: a browser sends an Origin with every WebSocket, and
+		// cannot send Kano's header, so that no web page on the tailnet
+		// reaches kanod through the browser of someone it lets in.
 		if r.Header.Get("Origin") != "" || r.Header.Get(remote.ClientHeader) == "" {
-			http.Error(w, "this is Kero's: connect with Kero", http.StatusForbidden)
+			http.Error(w, "this is Kano's: connect with Kano", http.StatusForbidden)
 			return
 		}
 		who, err := l.identify(r, via)
@@ -378,12 +378,12 @@ func (l *listeners) handler(ctx context.Context, via string) http.Handler {
 		l.d.log.Printf("%s disconnected (%s): %v", who, via, err)
 	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "Kero's daemon: connect with Kero (Settings › Hosts)", http.StatusNotFound)
+		http.Error(w, "Kano's daemon: connect with Kano (Settings › Hosts)", http.StatusNotFound)
 	})
 	return mux
 }
 
-// remoteServer answers a remote connection on kerod's behalf.
+// remoteServer answers a remote connection on kanod's behalf.
 func (d *Daemon) remoteServer(id identity) *remote.Server {
 	s := &remote.Server{
 		Info: func() proto.HostInfo {
@@ -407,7 +407,7 @@ func (d *Daemon) remoteServer(id identity) *remote.Server {
 		s.Update = func(app string) error {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 			defer cancel()
-			d.log.Printf("updating to Kero %s, as %s asked", app, id.peer)
+			d.log.Printf("updating to Kano %s, as %s asked", app, id.peer)
 			if err := update.Install(ctx, app, filepath.Dir(d.exe), build.Version(), false); err != nil {
 				d.log.Printf("update: %v", err)
 				return err
@@ -417,11 +417,11 @@ func (d *Daemon) remoteServer(id identity) *remote.Server {
 	} else if !build.Server {
 		s.Update = func(app string) error {
 			if !AppUpdates() {
-				return errors.New("Kero on this host takes updates from other machines only with remote-updates on: update it there")
+				return errors.New("Kano on this host takes updates from other machines only with remote-updates on: update it there")
 			}
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 			defer cancel()
-			d.log.Printf("updating the app to Kero %s, as %s asked", app, id.peer)
+			d.log.Printf("updating the app to Kano %s, as %s asked", app, id.peer)
 			if err := UpdateApp(ctx, app); err != nil {
 				d.log.Printf("update: %v", err)
 				return err
@@ -433,7 +433,7 @@ func (d *Daemon) remoteServer(id identity) *remote.Server {
 }
 
 // AppUpdates reports whether the desktop app here takes updates from
-// Kero on other machines: the user let it (remote-updates), and it can
+// Kano on other machines: the user let it (remote-updates), and it can
 // update itself, as a development build or a package manager's can't.
 func AppUpdates() bool {
 	return settings.Load().RemoteUpdates && mygo.Updater.Enabled()
@@ -441,8 +441,8 @@ func AppUpdates() bool {
 
 // UpdateApp installs the newest release of the desktop app in place of
 // this one, as the app of version app asks, from its own signed feed: the
-// release kerod restarts into, and the window here relaunches into as it
-// finds kerod newer (App.relaunchForKerod). Never back to an older one.
+// release kanod restarts into, and the window here relaunches into as it
+// finds kanod newer (App.relaunchForKanod). Never back to an older one.
 func UpdateApp(ctx context.Context, app string) error {
 	up, err := mygo.Updater.Check(ctx)
 	if err != nil {
@@ -452,16 +452,16 @@ func UpdateApp(ctx context.Context, app string) error {
 		if update.Compare(build.Version(), app) >= 0 {
 			return nil
 		}
-		return fmt.Errorf("no release of Kero %s or newer to update to", app)
+		return fmt.Errorf("no release of Kano %s or newer to update to", app)
 	}
 	if update.Compare(up.Version, app) < 0 {
-		return fmt.Errorf("the newest release is Kero %s, older than %s", up.Version, app)
+		return fmt.Errorf("the newest release is Kano %s, older than %s", up.Version, app)
 	}
 	return up.Install(ctx, nil)
 }
 
-// restart restarts kerod, as a remote client asks after an update: it
-// saves the sessions, which the next kerod starts again, as after a
+// restart restarts kanod, as a remote client asks after an update: it
+// saves the sessions, which the next kanod starts again, as after a
 // reboot, then ends; its service's manager, or its successor, starts the
 // next.
 func (d *Daemon) restart() (then func(), err error) {

@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
-// kero browser's calls are answered, always: with what the page did, or
-// why the app can't, which kerod hands the caller.
+// kano browser's calls are answered, always: with what the page did, or
+// why the app can't, which kanod hands the caller.
 func TestBrowseRefuses(t *testing.T) {
 	a := testApp(t)
 	s := &a.st.Sessions[0]

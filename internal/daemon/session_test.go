@@ -1,19 +1,20 @@
 package daemon
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
-	"kero/internal/proto"
+	"kano/internal/proto"
 )
 
 // testPane is a pane with no program, whose output the test writes.
 func testPane(t *testing.T) *pane {
 	t.Helper()
-	t.Setenv("KERO_CONFIG", filepath.Join(t.TempDir(), "config"))
+	t.Setenv("KANO_CONFIG", filepath.Join(t.TempDir(), "config"))
 	d := &Daemon{changeCh: make(chan struct{}, 1), saveCh: make(chan struct{}, 1)}
 	d.viewed.Store(new(string))
 	s, err := newPane(d, "s", proto.Pane{ID: "p", Status: proto.Idle, Cols: 96, Rows: 28})
@@ -99,7 +100,7 @@ func TestClaudeRedrawIsNoWork(t *testing.T) {
 
 // Claude Code at its prompt for a while notifies "waiting for your
 // input": its screen, at the prompt, tells it is idle, not waiting. Its
-// notification at a permission dialog words the wait. "kero notify" from
+// notification at a permission dialog words the wait. "kano notify" from
 // it needs the user all the same.
 func TestAgentNotifyFollowsScreen(t *testing.T) {
 	s := testPane(t)
@@ -133,7 +134,7 @@ func TestAgentNotifyFollowsScreen(t *testing.T) {
 	s.flag("", "Need your API key to continue")
 	s.mu.Unlock()
 	if st := s.status(now); st != proto.Waiting || s.info.Message != "Need your API key to continue" {
-		t.Fatalf("kero notify: %s %q", st, s.info.Message)
+		t.Fatalf("kano notify: %s %q", st, s.info.Message)
 	}
 }
 
@@ -190,6 +191,35 @@ func TestWorkingHeldBeforeIdle(t *testing.T) {
 	}
 }
 
+// kill ends a session and the shell it runs, rather than leaving the shell
+// to outlive it as closing may.
+func TestKillSession(t *testing.T) {
+	d := testDaemon(t)
+	s, err := d.create(proto.CreateParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := d.findPane(s.Panes[0].ID)
+	if p == nil || p.proc == nil {
+		t.Fatal("the session has no shell")
+	}
+	raw, _ := json.Marshal(proto.IDParams{ID: s.ID})
+	if _, err := d.call(&controlConn{done: make(chan struct{})}, "kill", raw); err != nil {
+		t.Fatal(err)
+	}
+	d.mu.Lock()
+	gone := d.findSessionLocked(s.ID) == nil
+	d.mu.Unlock()
+	if !gone {
+		t.Fatal("the session remains")
+	}
+	select {
+	case <-p.proc.exited:
+	default:
+		t.Fatal("the shell runs on")
+	}
+}
+
 // A restore resumes Claude Code's and Codex's sessions, and nothing a
 // state file could slip in.
 func TestResumeCommand(t *testing.T) {
@@ -218,7 +248,7 @@ func TestResumeCommand(t *testing.T) {
 // under none, as in Codex's app server that panes share, tells of the
 // pane that can only be the agent's, and of none when several could be.
 func TestAgentPane(t *testing.T) {
-	t.Setenv("KERO_CONFIG", filepath.Join(t.TempDir(), "config"))
+	t.Setenv("KANO_CONFIG", filepath.Join(t.TempDir(), "config"))
 	d := &Daemon{changeCh: make(chan struct{}, 1), saveCh: make(chan struct{}, 1), panes: map[string]*pane{}}
 	d.viewed.Store(new(string))
 	add := func(id, agent, dir string, session bool) *pane {
